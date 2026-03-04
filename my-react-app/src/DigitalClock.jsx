@@ -19,7 +19,7 @@ function DigitalClock() {
         let hours = time.getHours();
         const minutes = time.getMinutes();
         const seconds = time.getSeconds();
-
+        
         hours = hours % 24 || 24;
 
         return `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}`;
