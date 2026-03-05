@@ -3,6 +3,7 @@ import LoginPage from "./LoginPage.jsx";
 import LandingPage from "./LandingPage.jsx";
 import Dashboard from "./Dashboard.jsx";
 import BookingPage from "./BookingPage.jsx";
+import IssuesPage from "./IssuesPage.jsx"
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/login/landlord" element={<LoginPage role="landlord" />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/booking" element={<BookingPage />} />
+        <Route path="/issues" element={<IssuesPage />} />
       </Routes>
     </BrowserRouter>
   );
