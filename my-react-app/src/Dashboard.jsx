@@ -1,13 +1,48 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Calendar, Megaphone, AlertCircle, Home, ClipboardList, Book, LogOut } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { supabase } from './supabaseClient';
 
 const Dashboard = () => {
+    const [userName, setUserName] = useState('');
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            // Hämta inloggad användare
+            const { data: { user } } = await supabase.auth.getUser();
+
+            if (user) {
+                // Hämta namnet från din public.users tabell
+                const { data } = await supabase
+                    .from('users')
+                    .select('full_name')
+                    .eq('id', user.id)
+                    .single();
+
+                if (data?.full_name) {
+                    setUserName(data.full_name);
+                } else {
+                    setUserName(user.email);
+                }
+            } else {
+                navigate('/'); // Skicka till start om inte inloggad
+            }
+        };
+
+        fetchUserData();
+    }, [navigate]);
+
+    const handleLogout = async () => {
+        await supabase.auth.signOut();
+        navigate('/');
+    };
+
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
             {/* Header */}
             <header className="p-8">
-                <h1 className="text-3xl font-bold text-blue-950">Welcome back </h1>
+                <h1 className="text-3xl font-bold text-blue-950">Welcome back {userName}</h1>
                 <p className="text-gray-500">Here's what's happening in your bulding today. </p>
             </header>
 
@@ -58,9 +93,9 @@ const Dashboard = () => {
                 <button className="flex flex-col items-center text-blue-900"><Home size={24} /><span className="text-[10px]">Home</span></button>
                 <button className="flex flex-col items-center text-gray-400"><ClipboardList size={24} /><span className="text-[10px]">Issues</span></button>
                 <Link to="/booking" className="flex flex-col items-center text-gray-400"><Book size={24} /><span className="text-[10px]">Book</span></Link>
-                <button className="flex flex-col items-center text-gray-400"><LogOut size={24} /><span className="text-[10px]">Exit</span></button>
+                <button onClick={handleLogout} className="flex flex-col items-center text-gray-400"><LogOut size={24} /><span className="text-[10px]">Exit</span></button>
             </nav>
         </div>
     );
 }
-export default Dashboard
+export default Dashboard;
