@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Calendar as CalendarIcon, Clock, ChevronLeft, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from './supabaseClient'; // Din nya klient!
+import BottomNav from './BottomNav';
 
 const BookingPage = () => {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
@@ -98,6 +99,7 @@ const BookingPage = () => {
           ))}
         </section>
       </main>
+      <BottomNav />
     </div>
   );
 };
