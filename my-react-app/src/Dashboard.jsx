@@ -15,7 +15,6 @@ const Dashboard = () => {
             const { data: { user } } = await supabase.auth.getUser();
 
             if (user) {
-                // 1. Hämta användarnamn
                 const { data: userData } = await supabase
                     .from('users')
                     .select('full_name')
@@ -24,20 +23,19 @@ const Dashboard = () => {
 
                 setUserName(userData?.full_name || user.email);
 
-                // 2. Hämta nästa bokning (endast framtida)
+                // Hämtar bokning (vi tar även med end_time nu för att veta när det slutar)
                 const { data: bookingData } = await supabase
                     .from('bookings')
-                    .select('start_time')
+                    .select('id, start_time, end_time')
                     .eq('user_id', user.id)
                     .eq('status', 'confirmed')
-                    .gte('start_time', new Date().toISOString())
+                    .gte('end_time', new Date().toISOString()) // Visa bokningen tills den är slut
                     .order('start_time', { ascending: true })
                     .limit(1)
                     .maybeSingle();
 
                 setUpcomingBooking(bookingData);
 
-                // 3. Hämta de 2 senaste meddelandena
                 const { data: infoData } = await supabase
                     .from('announcements')
                     .select('title, created_at')
@@ -54,12 +52,34 @@ const Dashboard = () => {
         fetchDashboardData();
     }, [navigate]);
 
-    // Hjälpfunktion för att formatera datum
+const getBookingStatus = (start, end) => {
+    const now = new Date();
+    
+    const parseLocal = (isoStr) => {
+        const [d, t] = isoStr.split('T');
+        const [y, mo, day] = d.split('-');
+        const [h, mi] = t.split(':');
+        return new Date(y, mo - 1, day, h, mi);
+    };
+
+    const startTime = parseLocal(start);
+    const endTime = parseLocal(end);
+
+    if (now >= startTime && now <= endTime) {
+        return { label: "Laundry in progress", color: "bg-blue-100 text-blue-800 border-blue-200" };
+    }
+    if (now < startTime) {
+        return { label: "Upcoming", color: "bg-green-50 text-green-800 border-green-100" };
+    }
+    return null;
+};
+
 const formatBooking = (isoString) => {
     const [datePart, timePart] = isoString.split('T');
     const [year, month, day] = datePart.split('-');
     const [hour, minute] = timePart.split(':');
     
+    // Skapa ett lokalt datumobjekt utan tidszons-offset
     const d = new Date(year, month - 1, day, hour, minute);
     
     return d.toLocaleDateString('sv-SE', { weekday: 'short', day: 'numeric', month: 'short' }) + 
@@ -68,16 +88,12 @@ const formatBooking = (isoString) => {
 
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
-            {/* Header */}
             <header className="p-8">
                 <h1 className="text-3xl font-bold text-blue-950">Welcome back {userName}</h1>
                 <p className="text-gray-500">Here's what's happening in your bulding today. </p>
             </header>
 
-            {/* Main Content */}
             <main className="px-6 space-y-6">
-
-                {/* Announcements Card */}
                 <section className="bg-white p-6 rounded-2xll shadow-sm border border-gray-100">
                     <div className="flex justify-between items-center mb-4">
                         <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
@@ -99,16 +115,18 @@ const formatBooking = (isoString) => {
                     )}
                 </section>
 
-                {/* Upcoming Bookings Card*/}
                 <section className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                     <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2 mb-4">
                         <Calendar size={20} className="text-green-600" /> Upcoming Bookings
                     </h2>
                     <div className="text-center py-4">
                         {upcomingBooking ? (
-                            <div className="mb-4 bg-green-50 p-3 rounded-xl border border-green-100">
-                                <p className="text-green-800 font-bold">{formatBooking(upcomingBooking.start_time)}</p>
-                                <p className="text-green-600 text-xs">Laundry Room</p>
+                            <div className={`mb-4 p-4 rounded-xl border ${getBookingStatus(upcomingBooking.start_time, upcomingBooking.end_time)?.color}`}>
+                                <span className="text-[10px] uppercase tracking-wider font-bold opacity-70">
+                                    {getBookingStatus(upcomingBooking.start_time, upcomingBooking.end_time)?.label}
+                                </span>
+                                <p className="font-bold text-lg">{formatBooking(upcomingBooking.start_time)}</p>
+                                <p className="text-xs opacity-80">Laundry Room 1</p>
                             </div>
                         ) : (
                             <p className="text-gray-400 mb-4">No upcoming bookings.</p>
@@ -119,7 +137,6 @@ const formatBooking = (isoString) => {
                     </div>
                 </section>
 
-                {/* My Issues Card */}
                 <section className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                     <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2 mb-4">
                         <AlertCircle size={20} className="text-orange-500" /> My Issues
@@ -133,7 +150,6 @@ const formatBooking = (isoString) => {
                     <button className="text-gray-500 text-sm mt-4 w-full">View All</button>
                 </section>
             </main>
-
             <BottomNav />
         </div>
     );

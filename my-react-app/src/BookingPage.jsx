@@ -17,20 +17,14 @@ const BookingPage = () => {
     { start: "16:00", end: "20:00" }
   ];
 
-  // Hjälpfunktion för att kolla om en tid har passerat
   const isTimePast = (slotStart) => {
     const now = new Date();
     const today = now.toISOString().split('T')[0];
-    
-    // Om det valda datumet är tidigare än idag
     if (selectedDate < today) return true;
-    
-    // Om det är idag, kolla om klockslaget har passerat
     if (selectedDate === today) {
       const [hour] = slotStart.split(':');
       return now.getHours() >= parseInt(hour);
     }
-    
     return false;
   };
 
@@ -47,7 +41,7 @@ const BookingPage = () => {
   const fetchBookings = async () => {
     const { data, error: fetchError } = await supabase
       .from('bookings')
-      .select('start_time')
+      .select('id, start_time, user_id') // Hämtar även id och vem som bokat
       .eq('resource_id', '1353191a-15fa-4900-9c94-bdff49f45c69')
       .eq('status', 'confirmed');
 
@@ -57,9 +51,8 @@ const BookingPage = () => {
 
   const handleBook = async (slot) => {
     if (!userId || isTimePast(slot.start)) return;
-
     setLoading(true);
-    const startTime = `${selectedDate}T${slot.start}:00`; // Utan Z för lokal tid
+    const startTime = `${selectedDate}T${slot.start}:00`;
     const endTime = `${selectedDate}T${slot.end}:00`;
 
     try {
@@ -72,14 +65,33 @@ const BookingPage = () => {
             end_time: endTime,
             status: 'confirmed'
           }]);
-
       if (insertError) throw insertError;
-
       setShowStatus({ show: true, message: 'Bokning bekräftad!', type: 'success' });
       fetchBookings(); 
     } catch (err) {
       console.error("Booking failed:", err.message);
       setShowStatus({ show: true, message: 'Kunde inte boka.', type: 'error' });
+    } finally {
+      setLoading(false);
+      setTimeout(() => setShowStatus({ show: false, message: '', type: '' }), 3000);
+    }
+  };
+
+  // NY FUNKTION: Hantera avbokning
+  const handleCancel = async (bookingId) => {
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from('bookings')
+        .delete()
+        .eq('id', bookingId);
+
+      if (error) throw error;
+      setShowStatus({ show: true, message: 'Bokningen avbokad.', type: 'success' });
+      fetchBookings();
+    } catch (err) {
+      console.error("Cancel failed:", err.message);
+      setShowStatus({ show: true, message: 'Kunde inte avboka.', type: 'error' });
     } finally {
       setLoading(false);
       setTimeout(() => setShowStatus({ show: false, message: '', type: '' }), 3000);
@@ -111,7 +123,7 @@ const BookingPage = () => {
           </label>
           <input 
             type="date" 
-            min={new Date().toISOString().split('T')[0]} // Hindrar val av gamla datum i kalendern
+            min={new Date().toISOString().split('T')[0]}
             className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
@@ -123,27 +135,40 @@ const BookingPage = () => {
             <Clock size={18} className="text-blue-600" /> Tillgängliga tider
           </h2>
           {slots.map((slot, index) => {
-            const isBooked = existingBookings.some(b => 
+            // Hitta om det finns en bokning för denna tid
+            const bookingForSlot = existingBookings.find(b => 
               b.start_time.includes(`${selectedDate}T${slot.start}`)
             );
             
+            const isBooked = !!bookingForSlot;
+            const isMine = isBooked && bookingForSlot.user_id === userId;
             const isPast = isTimePast(slot.start);
-            const isDisabled = loading || isBooked || isPast;
 
             return (
               <div key={index} className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center">
-                <span className={`font-medium ${isDisabled ? 'text-gray-300 italic' : 'text-gray-800'}`}>
-                  {slot.start} - {slot.end} {isBooked ? "(Bokad)" : isPast ? "(Passerad)" : ""}
+                <span className={`font-medium ${isBooked || isPast ? 'text-gray-300 italic' : 'text-gray-800'}`}>
+                  {slot.start} - {slot.end} {isMine ? "(Din bokning)" : isBooked ? "(Upptagen)" : isPast ? "(Passerad)" : ""}
                 </span>
-                <button 
-                  onClick={() => handleBook(slot)}
-                  disabled={isDisabled}
-                  className={`${
-                    isDisabled ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-95'
-                  } px-6 py-2 rounded-lg text-sm font-semibold transition-all`}
-                >
-                  {isBooked ? 'Upptagen' : isPast ? 'Stängd' : loading ? 'Bokar...' : 'Boka'}
-                </button>
+                
+                {isMine ? (
+                  <button 
+                    onClick={() => handleCancel(bookingForSlot.id)}
+                    disabled={loading}
+                    className="bg-red-100 text-red-600 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-200 transition-all"
+                  >
+                    Avboka
+                  </button>
+                ) : (
+                  <button 
+                    onClick={() => handleBook(slot)}
+                    disabled={loading || isBooked || isPast}
+                    className={`${
+                      isBooked || isPast ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-95'
+                    } px-6 py-2 rounded-lg text-sm font-semibold transition-all`}
+                  >
+                    {isBooked ? 'Upptagen' : isPast ? 'Stängd' : loading ? 'Bokar...' : 'Boka'}
+                  </button>
+                )}
               </div>
             );
           })}
