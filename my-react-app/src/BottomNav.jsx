@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 const BottomNav = () => (
     <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around p-4 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
         
-        <Link to="/home" className="flex flex-col items-center text-blue-900">
+        <Link to="/dashboard" className="flex flex-col items-center text-blue-900">
             <Home size={24} /><span className="text-[10px]">Home</span>
         </Link>
 
