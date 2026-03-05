@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calendar as CalendarIcon, Clock, ChevronLeft, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { supabase } from './supabaseClient'; // Din nya klient!
+import { supabase } from './supabaseClient'; 
 import BottomNav from './BottomNav';
 
 const BookingPage = () => {
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [loading, setLoading] = useState(false);
   const [showStatus, setShowStatus] = useState({ show: false, message: '', type: '' });
+  const [userId, setUserId] = useState(null);
+  const [existingBookings, setExistingBookings] = useState([]);
 
   const slots = [
     { start: "08:00", end: "12:00" },
@@ -15,34 +17,59 @@ const BookingPage = () => {
     { start: "16:00", end: "20:00" }
   ];
 
+  useEffect(() => {
+    const initPage = async () => {
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError) {
+        console.error("Error fetching user:", userError.message);
+      }
+
+      if (user) setUserId(user.id);
+      fetchBookings();
+    };
+    initPage();
+  }, [selectedDate]);
+
+  const fetchBookings = async () => {
+    const { data, error: fetchError } = await supabase
+      .from('bookings')
+      .select('start_time')
+      .eq('resource_id', '1353191a-15fa-4900-9c94-bdff49f45c69')
+      .eq('status', 'confirmed');
+
+    if (fetchError) {
+      console.error("Error fetching bookings:", fetchError.message);
+    }
+
+    if (data) setExistingBookings(data);
+  };
+
   const handleBook = async (slot) => {
+    if (!userId) return;
+
     setLoading(true);
-    
-    // 1. Skapa korrekt tidsformat för PostgreSQL (ISO 8601)
-    const startTime = `${selectedDate}T${slot.start}:00Z`;
-    const endTime = `${selectedDate}T${slot.end}:00Z`;
+    const startTime = `${selectedDate}T${slot.start}:00`;
+    const endTime = `${selectedDate}T${slot.end}:00`;
 
     try {
-      // 2. Skicka bokningen till Supabase
-      // OBS: Ersätt 'DIN_RESOURCE_ID' med ett UUID från din 'resources'-tabell
-      const { error } = await supabase
+      const { error: insertError } = await supabase
         .from('bookings')
-        .insert([
-          { 
+        .insert([{ 
             resource_id: '1353191a-15fa-4900-9c94-bdff49f45c69', 
-            user_id: 'DITT_USER_ID_HÄR', // Detta hämtas normalt från auth.user()
+            user_id: userId,
             start_time: startTime,
             end_time: endTime,
             status: 'confirmed'
-          }
-        ]);
+          }]);
 
-      if (error) throw error;
+      if (insertError) throw insertError;
 
       setShowStatus({ show: true, message: 'Bokning bekräftad!', type: 'success' });
-    } catch (error) {
-      console.error("Error booking:", error.message);
-      setShowStatus({ show: true, message: 'Kunde inte boka. Försök igen.', type: 'error' });
+      fetchBookings(); 
+    } catch (err) {
+      console.error("Booking failed:", err.message);
+      setShowStatus({ show: true, message: 'Kunde inte boka.', type: 'error' });
     } finally {
       setLoading(false);
       setTimeout(() => setShowStatus({ show: false, message: '', type: '' }), 3000);
@@ -51,7 +78,6 @@ const BookingPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-10">
-      {/* Statusmeddelande */}
       {showStatus.show && (
         <div className={`fixed top-4 left-4 right-4 p-4 rounded-xl shadow-lg flex items-center gap-3 z-50 animate-in fade-in slide-in-from-top-4 ${
           showStatus.type === 'success' ? 'bg-green-600 text-white' : 'bg-red-600 text-white'
@@ -85,18 +111,28 @@ const BookingPage = () => {
           <h2 className="text-sm font-medium text-gray-700 flex items-center gap-2">
             <Clock size={18} className="text-blue-600" /> Tillgängliga tider
           </h2>
-          {slots.map((slot, index) => (
-            <div key={index} className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center">
-              <span className="text-gray-800 font-medium">{slot.start} - {slot.end}</span>
-              <button 
-                onClick={() => handleBook(slot)}
-                disabled={loading}
-                className="bg-blue-600 text-white px-6 py-2 rounded-lg text-sm font-semibold hover:bg-blue-700 disabled:opacity-50 transition-all active:scale-95"
-              >
-                {loading ? 'Bokar...' : 'Boka'}
-              </button>
-            </div>
-          ))}
+          {slots.map((slot, index) => {
+            const isBooked = existingBookings.some(b => 
+              b.start_time.includes(`${selectedDate}T${slot.start}`)
+            );
+
+            return (
+              <div key={index} className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center">
+                <span className={`font-medium ${isBooked ? 'text-gray-300 italic' : 'text-gray-800'}`}>
+                  {slot.start} - {slot.end} {isBooked && "(Bokad)"}
+                </span>
+                <button 
+                  onClick={() => handleBook(slot)}
+                  disabled={loading || isBooked}
+                  className={`${
+                    isBooked ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-95'
+                  } px-6 py-2 rounded-lg text-sm font-semibold transition-all`}
+                >
+                  {isBooked ? 'Upptagen' : loading ? 'Bokar...' : 'Boka'}
+                </button>
+              </div>
+            );
+          })}
         </section>
       </main>
       <BottomNav />
