@@ -1,19 +1,16 @@
-import Counter from "./Counter.jsx"
-import MyComponent from "./MyComponent.jsx"
-import ColorPicker from "./ColorPicker.jsx"
-import ToDoList from "./ToDoList.jsx"
-import DigitalClock from "./DigitalClock.jsx"
-import ComponentA from "./ComponentA.jsx"
-import Stopwatch from "./Stopwatch.jsx"
-import Login from "./Login.jsx"
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Dashboard from "./Dashboard.jsx";
 
 function App() {
-
   return (
-    <>
-      <Login />
-    </>
-  )
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
+export default App;
 
-export default App
+
