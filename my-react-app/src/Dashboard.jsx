@@ -1,14 +1,49 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Calendar, Megaphone, AlertCircle, Home, ClipboardList, Book, LogOut } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { supabase } from './supabaseClient';
 import BottomNav from './BottomNav';
 
 const Dashboard = () => {
+    const [userName, setUserName] = useState('');
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            // Hämta inloggad användare
+            const { data: { user } } = await supabase.auth.getUser();
+
+            if (user) {
+                // Hämta namnet från din public.users tabell
+                const { data } = await supabase
+                    .from('users')
+                    .select('full_name')
+                    .eq('id', user.id)
+                    .single();
+
+                if (data?.full_name) {
+                    setUserName(data.full_name);
+                } else {
+                    setUserName(user.email);
+                }
+            } else {
+                navigate('/'); // Skicka till start om inte inloggad
+            }
+        };
+
+        fetchUserData();
+    }, [navigate]);
+
+    const handleLogout = async () => {
+        await supabase.auth.signOut();
+        navigate('/');
+    };
+
     return (
         <div className="min-h-screen bg-gray-50 pb-20">
             {/* Header */}
             <header className="p-8">
-                <h1 className="text-3xl font-bold text-blue-950">Welcome back </h1>
+                <h1 className="text-3xl font-bold text-blue-950">Welcome back {userName}</h1>
                 <p className="text-gray-500">Here's what's happening in your bulding today. </p>
             </header>
 
@@ -58,4 +93,4 @@ const Dashboard = () => {
         </div>
     );
 }
-export default Dashboard
+export default Dashboard;
