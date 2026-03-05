@@ -8,7 +8,7 @@ const LoginPage = ({ role }) => {
   const handleLogin = (e) => {
     e.preventDefault();
 
-    console.log("Loggar in som:", isLandlord ? "Landlord" : "Resident");
+    console.log("Loggar in som:", role);
 
     navigate("/dashboard");
   }
@@ -25,7 +25,7 @@ const LoginPage = ({ role }) => {
         </div>
         
 
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={handleLogin}>
           {/* E-postfältet */}
           <div>
             <label className="block text-gray-700 text-sm font-bold mb-2">
