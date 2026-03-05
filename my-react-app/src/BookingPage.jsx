@@ -17,14 +17,27 @@ const BookingPage = () => {
     { start: "16:00", end: "20:00" }
   ];
 
+  // Hjälpfunktion för att kolla om en tid har passerat
+  const isTimePast = (slotStart) => {
+    const now = new Date();
+    const today = now.toISOString().split('T')[0];
+    
+    // Om det valda datumet är tidigare än idag
+    if (selectedDate < today) return true;
+    
+    // Om det är idag, kolla om klockslaget har passerat
+    if (selectedDate === today) {
+      const [hour] = slotStart.split(':');
+      return now.getHours() >= parseInt(hour);
+    }
+    
+    return false;
+  };
+
   useEffect(() => {
     const initPage = async () => {
       const { data: { user }, error: userError } = await supabase.auth.getUser();
-      
-      if (userError) {
-        console.error("Error fetching user:", userError.message);
-      }
-
+      if (userError) console.error("Error fetching user:", userError.message);
       if (user) setUserId(user.id);
       fetchBookings();
     };
@@ -38,18 +51,15 @@ const BookingPage = () => {
       .eq('resource_id', '1353191a-15fa-4900-9c94-bdff49f45c69')
       .eq('status', 'confirmed');
 
-    if (fetchError) {
-      console.error("Error fetching bookings:", fetchError.message);
-    }
-
+    if (fetchError) console.error("Error fetching bookings:", fetchError.message);
     if (data) setExistingBookings(data);
   };
 
   const handleBook = async (slot) => {
-    if (!userId) return;
+    if (!userId || isTimePast(slot.start)) return;
 
     setLoading(true);
-    const startTime = `${selectedDate}T${slot.start}:00`;
+    const startTime = `${selectedDate}T${slot.start}:00`; // Utan Z för lokal tid
     const endTime = `${selectedDate}T${slot.end}:00`;
 
     try {
@@ -101,6 +111,7 @@ const BookingPage = () => {
           </label>
           <input 
             type="date" 
+            min={new Date().toISOString().split('T')[0]} // Hindrar val av gamla datum i kalendern
             className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
@@ -115,20 +126,23 @@ const BookingPage = () => {
             const isBooked = existingBookings.some(b => 
               b.start_time.includes(`${selectedDate}T${slot.start}`)
             );
+            
+            const isPast = isTimePast(slot.start);
+            const isDisabled = loading || isBooked || isPast;
 
             return (
               <div key={index} className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center">
-                <span className={`font-medium ${isBooked ? 'text-gray-300 italic' : 'text-gray-800'}`}>
-                  {slot.start} - {slot.end} {isBooked && "(Bokad)"}
+                <span className={`font-medium ${isDisabled ? 'text-gray-300 italic' : 'text-gray-800'}`}>
+                  {slot.start} - {slot.end} {isBooked ? "(Bokad)" : isPast ? "(Passerad)" : ""}
                 </span>
                 <button 
                   onClick={() => handleBook(slot)}
-                  disabled={loading || isBooked}
+                  disabled={isDisabled}
                   className={`${
-                    isBooked ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-95'
+                    isDisabled ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-95'
                   } px-6 py-2 rounded-lg text-sm font-semibold transition-all`}
                 >
-                  {isBooked ? 'Upptagen' : loading ? 'Bokar...' : 'Boka'}
+                  {isBooked ? 'Upptagen' : isPast ? 'Stängd' : loading ? 'Bokar...' : 'Boka'}
                 </button>
               </div>
             );
