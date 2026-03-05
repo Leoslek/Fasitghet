@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import { Calendar, Megaphone, AlertCircle, Home, ClipboardList, Book, LogOut } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -27,14 +27,14 @@ const Dashboard = () => {
 
                 {/* Upcoming Bookings Card*/}
                 <section className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <h2 className="tetx-lg font-bold text-gray-800 flex items-center gap-2 mb-4">
-                        <Calendar size={20} classname="text-green-600" /> Upcoming Bookings
+                    <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2 mb-4">
+                        <Calendar size={20} className="text-green-600" /> Upcoming Bookings
                     </h2>
                     <div className="text-center py-4">
                         <p className="text-gray-400 mb-4">No upcoming bookings.</p>
-                        <button className="border-2 border-gray-800 text-gray-800 px-6 py-2 rounded-lg">
-                            Book Laundry
-                        </button>
+                    <Link to="/booking" className="inline-block border-2 border-gray-800 text-gray-800 px-6 py-2 rounded-lg font-medium text-center">
+                    Book Laundry
+                    </Link>
                     </div>
                 </section>
 
@@ -57,7 +57,7 @@ const Dashboard = () => {
             <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around p-4 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
                 <button className="flex flex-col items-center text-blue-900"><Home size={24} /><span className="text-[10px]">Home</span></button>
                 <button className="flex flex-col items-center text-gray-400"><ClipboardList size={24} /><span className="text-[10px]">Issues</span></button>
-                <button className="flex flex-col items-center text-gray-400"><Book size={24} /><span className="text-[10px]">Book</span></button>
+                <Link to="/booking" className="flex flex-col items-center text-gray-400"><Book size={24} /><span className="text-[10px]">Book</span></Link>
                 <button className="flex flex-col items-center text-gray-400"><LogOut size={24} /><span className="text-[10px]">Exit</span></button>
             </nav>
         </div>
