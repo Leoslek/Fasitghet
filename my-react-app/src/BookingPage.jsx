@@ -18,7 +18,22 @@ const BookingPage = () => {
     { start: "16:00", end: "20:00" }
   ];
 
-  // Hjälpfunktion för att kolla dåtid
+  // Hjälpfunktion för att hitta start och slut på veckan för ett specifikt datum
+  const getWeekRange = (dateStr) => {
+    const date = new Date(dateStr);
+    const day = date.getDay(); // 0 (sön) till 6 (lör)
+    // Justera så måndag är dag 1, söndag dag 7
+    const diff = date.getDate() - (day === 0 ? 6 : day - 1); 
+    const monday = new Date(date.setDate(diff));
+    monday.setHours(0, 0, 0, 0);
+    
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    sunday.setHours(23, 59, 59, 999);
+    
+    return { monday, sunday };
+  };
+
   const isTimePast = (dateStr, slotStart) => {
     const now = new Date();
     const today = now.toISOString().split('T')[0];
@@ -30,7 +45,6 @@ const BookingPage = () => {
     return false;
   };
 
-  // Hämta bokningar för vyn (memoized för att slippa ESLint-varning)
   const fetchMonthStatus = useCallback(async () => {
     const firstDay = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1).toISOString();
     const lastDay = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0, 23, 59, 59).toISOString();
@@ -43,7 +57,7 @@ const BookingPage = () => {
       .gte('start_time', firstDay)
       .lte('start_time', lastDay);
 
-    if (error) console.error("Error:", error.message);
+    if (error) console.error("Database error:", error.message);
     if (data) setMonthBookings(data);
   }, [viewDate]);
 
@@ -56,45 +70,51 @@ const BookingPage = () => {
     init();
   }, [fetchMonthStatus]);
 
-  // Kalender-logik
   const daysInMonth = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0).getDate();
   const firstDayOfMonth = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1).getDay();
   const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
   const blanks = Array.from({ length: firstDayOfMonth === 0 ? 6 : firstDayOfMonth - 1 }, (_, i) => i);
 
- const getDots = (day) => {
-  const dateStr = `${viewDate.getFullYear()}-${String(viewDate.getMonth() + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-  
-  // 1. Hitta bokningar för just denna dag från vår monthBookings-lista
-  const dayBookings = monthBookings.filter((b) => b.start_time.startsWith(dateStr));
+  const getDots = (day) => {
+    const dateStr = `${viewDate.getFullYear()}-${String(viewDate.getMonth() + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    const dayBookings = monthBookings.filter((b) => b.start_time.startsWith(dateStr));
 
-  // 2. Räkna hur många slots som faktiskt GÅR att boka (inte bokade OCH inte passerade)
-  const availableCount = slots.reduce((acc, slot) => {
-    const isBooked = dayBookings.some(b => b.start_time.includes(`T${slot.start}`));
-    const isPast = isTimePast(dateStr, slot.start);
-    
-    // Om den inte är bokad och inte har passerat, så är den tillgänglig
-    return (!isBooked && !isPast) ? acc + 1 : acc;
-  }, 0);
+    const availableCount = slots.reduce((acc, slot) => {
+      const isBooked = dayBookings.some(b => b.start_time.includes(`T${slot.start}`));
+      const isPast = isTimePast(dateStr, slot.start);
+      return (!isBooked && !isPast) ? acc + 1 : acc;
+    }, 0);
 
-  // 3. Bestäm färg/visning baserat på faktiskt tillgängliga tider
-  if (availableCount === 0) return null; // Inga bokningsbara tider kvar
+    if (availableCount === 0) return null;
+    let dotColor = "bg-green-500"; 
+    if (availableCount === 2) dotColor = "bg-orange-400";
+    if (availableCount === 1) dotColor = "bg-red-500";
 
-  let dotColor = "bg-green-500"; 
-  if (availableCount === 2) dotColor = "bg-orange-400";
-  if (availableCount === 1) dotColor = "bg-red-500";
-
-  return (
-    <div className="flex gap-0.5 justify-center mt-1">
-      {Array.from({ length: availableCount }, (_, i) => (
-        <div key={i} className={`w-1.5 h-1.5 ${dotColor} rounded-full`}></div>
-      ))}
-    </div>
-  );
-};
+    return (
+      <div className="flex gap-0.5 justify-center mt-1">
+        {Array.from({ length: availableCount }, (_, i) => (
+          <div key={i} className={`w-1.5 h-1.5 ${dotColor} rounded-full`}></div>
+        ))}
+      </div>
+    );
+  };
 
   const handleBook = async (slot) => {
     if (!userId || isTimePast(selectedDate, slot.start)) return;
+
+    // KONTROLL: Max 2 pass per vecka
+    const { monday, sunday } = getWeekRange(selectedDate);
+    const myWeekBookings = monthBookings.filter(b => {
+        const bDate = new Date(b.start_time);
+        return b.user_id === userId && bDate >= monday && bDate <= sunday;
+    });
+
+    if (myWeekBookings.length >= 2) {
+        setShowStatus({ show: true, message: 'Max 2 pass per vecka tillåtna.', type: 'error' });
+        setTimeout(() => setShowStatus({ show: false, message: '', type: '' }), 3000);
+        return;
+    }
+
     setLoading(true);
     const startTime = `${selectedDate}T${slot.start}:00`;
     const endTime = `${selectedDate}T${slot.end}:00`;
@@ -154,8 +174,8 @@ const BookingPage = () => {
               {viewDate.toLocaleString('sv-SE', { month: 'long', year: 'numeric' })}
             </h2>
             <div className="flex gap-4">
-              <button onClick={() => setViewDate(new Date(viewDate.setMonth(viewDate.getMonth() - 1)))}><ChevronLeft size={20}/></button>
-              <button onClick={() => setViewDate(new Date(viewDate.setMonth(viewDate.getMonth() + 1)))}><ChevronRight size={20}/></button>
+              <button onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1))}><ChevronLeft size={20}/></button>
+              <button onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1))}><ChevronRight size={20}/></button>
             </div>
           </div>
 
@@ -163,19 +183,20 @@ const BookingPage = () => {
             {['M', 'T', 'O', 'T', 'F', 'L', 'S'].map(d => <span key={d} className="text-[10px] font-bold text-gray-400">{d}</span>)}
           </div>
 
-          <div className="grid grid-cols-7 gap-y-2">
+          <div className="grid grid-cols-7 gap-y-2 text-center">
             {blanks.map(b => <div key={`b-${b}`}></div>)}
             {days.map(day => {
                 const dateStr = `${viewDate.getFullYear()}-${String(viewDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const isSelected = selectedDate === dateStr;
+                const isPastDay = dateStr < new Date().toISOString().split('T')[0];
                 return (
                   <button 
                     key={day} 
                     onClick={() => setSelectedDate(dateStr)}
                     className={`relative flex flex-col items-center py-2 rounded-xl transition-all ${isSelected ? 'bg-blue-600 text-white shadow-md' : 'hover:bg-gray-50'}`}
                   >
-                    <span className="text-sm font-semibold">{day}</span>
-                    <div className="flex gap-0.5 mt-1 h-1">{!isSelected && getDots(day)}</div>
+                    <span className={`text-sm font-semibold ${isPastDay && !isSelected ? 'text-gray-300' : ''}`}>{day}</span>
+                    <div className="h-2">{!isSelected && getDots(day)}</div>
                   </button>
                 )
             })}
@@ -192,6 +213,16 @@ const BookingPage = () => {
             const booking = monthBookings.find(b => b.start_time.startsWith(`${selectedDate}T${slot.start}`));
             const isMine = booking?.user_id === userId;
             const isPast = isTimePast(selectedDate, slot.start);
+            
+            // UI-Kontroll för veckogräns
+            const { monday, sunday } = getWeekRange(selectedDate);
+            const myWeekCount = monthBookings.filter(b => {
+                const bDate = new Date(b.start_time);
+                return b.user_id === userId && bDate >= monday && bDate <= sunday;
+            }).length;
+
+            const hasReachedLimit = myWeekCount >= 2;
+            const isDisabled = loading || booking || isPast || (hasReachedLimit && !isMine);
 
             return (
               <div key={index} className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex justify-between items-center">
@@ -199,10 +230,10 @@ const BookingPage = () => {
                   {slot.start} - {slot.end} {isMine ? "(Din tid)" : booking ? "(Bokad)" : isPast ? "(Passerad)" : ""}
                 </span>
                 {isMine ? (
-                  <button onClick={() => handleCancel(booking.id)} disabled={loading} className="bg-red-100 text-red-600 px-4 py-2 rounded-lg text-sm font-semibold">Avboka</button>
+                  <button onClick={() => handleCancel(booking.id)} disabled={loading} className="bg-red-100 text-red-600 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-200 transition-colors">Avboka</button>
                 ) : (
-                  <button onClick={() => handleBook(slot)} disabled={loading || booking || isPast} className={`${booking || isPast ? 'bg-gray-200 text-gray-400' : 'bg-blue-600 text-white'} px-6 py-2 rounded-lg text-sm font-semibold`}>
-                    {booking ? 'Bokad' : isPast ? 'Stängd' : loading ? '...' : 'Boka'}
+                  <button onClick={() => handleBook(slot)} disabled={isDisabled} className={`${isDisabled ? 'bg-gray-200 text-gray-400' : 'bg-blue-600 text-white hover:bg-blue-700'} px-6 py-2 rounded-lg text-sm font-semibold transition-all`}>
+                    {booking ? 'Bokad' : isPast ? 'Stängd' : hasReachedLimit ? 'Veckogräns' : 'Boka'}
                   </button>
                 )}
               </div>

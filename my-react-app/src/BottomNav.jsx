@@ -20,7 +20,7 @@ return (
             <Book size={24} /><span className="text-[10px]">Book</span>
         </NavLink>
 
-        <NavLink to="/exit" className="flex flex-col items-center text-red-500">
+        <NavLink to="/" className="flex flex-col items-center text-red-500">
             <LogOut size={24} /><span className="text-[10px]">Exit</span>
         </NavLink>
 
