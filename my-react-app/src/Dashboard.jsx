@@ -75,7 +75,7 @@ const Dashboard = () => {
     }
     if (now < startTime) {
       return {
-        label: "Upcoming",
+        label: "Kommande bokning",
         color: "bg-green-50 text-green-800 border-green-100",
       };
     }
