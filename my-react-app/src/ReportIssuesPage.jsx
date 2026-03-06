@@ -28,28 +28,28 @@ const ReportIssuesPage = () => {
             </button>
 
             <h1 className="text-2xl font-bold text-blue-950 mb-6">
-                Report New Issue
+                Rapportera nytt problem
                 </h1>
 
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">
-                        Title
+                        Titel
                     </label>
                     <input type="text" requierd className="w-full border rounded-lg p-2" onChange={(e) => setIssue({...issue, title: e.target.value})} />
                 </div>
 
                 <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Category</label>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Kategori</label>
                     <select className="w-full border rounded-lg p-2" onChange={(e) => setIssue({...issue, category: e.target.value})}>
-                        <option>Water</option>
-                        <option>Electricity</option>
-                        <option>General</option>
+                        <option>Vatten</option>
+                        <option>El</option>
+                        <option>Allmänt</option>
                     </select>
                 </div>
 
                 <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-1">Description</label>
+                    <label className="block text-sm font-bold text-gray-700 mb-1">Beskrivning</label>
                     <textarea
                         required
                         rows="4"
@@ -60,7 +60,7 @@ const ReportIssuesPage = () => {
                 </div>
 
                 <button type="submit" className="w-full bg-blue-950 text-white p-3 rounded-lg font-bold mt-4 hover:cursor-pointer hover:bg-blue-900 transition">
-                    Submit Issue
+                    Skicka
                 </button>
             </form>
             <BottomNav/>

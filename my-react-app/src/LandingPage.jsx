@@ -18,10 +18,10 @@ const LandingPage = () => {
         {/* De två knapparna */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link to="/login/landlord" className="bg-blue-950 text-white px-6 py-2 rounded-full font-medium hover:bg-blue-900 hover:cursor-pointer transition">
-            Admin Login
+            Admin
           </Link>
           <Link to="/login/resident" className="bg-blue-950 text-white px-6 py-2 rounded-full font-medium hover:bg-blue-900 hover:cursor-pointer transition">
-            Boende Login
+            Boende
           </Link>
         </div>
       </nav>
@@ -29,16 +29,16 @@ const LandingPage = () => {
       {/* Hero Section*/}
       <main className="flex flex-col items-center justify-center min-h-[70vh] text-center px-4 bg-gray-100">
         <h1 className="text-5xl md:text-7xl font-bold text-blue-950 mb-6 tracking-tight">
-          Modern living made <br /> simple.
+          Modernt boende <br /> enkelt.
         </h1>
 
         <p className="max-w-xl text-lg md:text-xl text-gray-600 mb-10">
-          Manage your housing association tasks with ease. Book laundry times,
-          report issues, and stay updated with community announcement.
+          Hantera dina uppgifter i bostdasrättsföreningen enkelt. Boka tvättid, 
+          rapportera problem och håll dig uppdaterad om meddelanden från lokalsamhället.
         </p>
 
         <button className="flex items-center gap-2 bg-blue-950 text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-blue-900 hover:cursor-pointer transition shadow-lg">
-          Get started
+          Börja Idag
           <svg
             className="w-5 h-5"
             fill="none"
@@ -63,10 +63,10 @@ const LandingPage = () => {
             <LayoutDashboard size={24} />
           </div>
           <div>
-            <h2 className="text-2xl font-bold mb-2">Issue Tracking</h2>
+            <h2 className="text-2xl font-bold mb-2">Problem Spårning</h2>
             <p className="text-gray-600">
-              Report maintance issues directly to the caretaker and track their
-              status in real-time
+              Rapportera underhållsproblem direkt till fastighetsskötaren och 
+              spåra deras status i realtid.
             </p>
           </div>
         </div>
@@ -79,8 +79,7 @@ const LandingPage = () => {
           <div>
             <h2 className="text-2xl font-bold mb-2">Community Hub</h2>
             <p className="text-gray-600">
-              Stay connected with board announcements and access important
-              documents securely
+             Håll dig uppdaterad om styrelsemeddelanden och få säker åtkomst till viktiga dokument.
             </p>
           </div>
         </div>
@@ -91,10 +90,9 @@ const LandingPage = () => {
             <ShieldCheck size={24} />
           </div>
           <div>
-            <h2 className="text-2xl font-bold mb-2">Secure Access</h2>
+            <h2 className="text-2xl font-bold mb-2">Säker Åtkomst</h2>
             <p className="text-gray-600">
-              Role-based access ensures residents, board member, and caretakers
-              see exctly what they need.
+              Rollbaserad åtkomst säkerställer att boende, styrelseledamöter och vårdare ser exakt vad de behöver.
             </p>
           </div>
         </div>

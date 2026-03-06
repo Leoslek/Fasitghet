@@ -11,14 +11,14 @@ const IssuesPage = () => {
   return (
     <div className="min-h-screen bg-white pb-24">
       <div className="p-8">
-        <h1 className="text-3xl font-bold text-blue-950">Issue Tracker</h1>
+        <h1 className="text-3xl font-bold text-blue-950">Felanmälningar</h1>
         <p className="text-gray-500 mb-6">
-          Report and track maintenance requests
+          Rapportera och spåra felanmälningar
         </p>
 
         {/* Action Button */}
         <Link to="/report-issues" className="w-full bg-blue-950 text-white p-3 rounded-lg flex items-center justify-center gap-2 font-medium hver:bg-blue-900 transition mb-6">
-          <Plus size={20} /> Report Issue
+          <Plus size={20} /> Rapportera problem
         </Link>
       </div>
 

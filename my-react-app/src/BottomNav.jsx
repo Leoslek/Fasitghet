@@ -9,19 +9,19 @@ return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around p-4 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
         
         <NavLink to="/dashboard" className={getLinkClass}>
-            <Home size={24} /><span className="text-[10px]">Home</span>
+            <Home size={24} /><span className="text-[10px]">Hem</span>
         </NavLink>
 
         <NavLink to="/issues" className={getLinkClass}>
-            <ClipboardList size={24} /><span className="text-[10px]">Issues</span>
+            <ClipboardList size={24} /><span className="text-[10px]">Problem</span>
         </NavLink>
 
         <NavLink to="/booking" className={getLinkClass}>
-            <Book size={24} /><span className="text-[10px]">Book</span>
+            <Book size={24} /><span className="text-[10px]">Boka</span>
         </NavLink>
 
         <NavLink to="/" className="flex flex-col items-center text-red-500">
-            <LogOut size={24} /><span className="text-[10px]">Exit</span>
+            <LogOut size={24} /><span className="text-[10px]">Logga ut</span>
         </NavLink>
 
     </nav>
