@@ -1,26 +1,12 @@
-import React from "react";
+import React, { useContext }from "react";
+import { IssuesContext } from './IssuesContext';
 import { Search, Filter, Plus } from "lucide-react";
 import BottomNav from "./BottomNav";
+import { Link } from "react-router-dom";
 
 const IssuesPage = () => {
-  const issues = [
-    {
-      id: 1,
-      title: "Vasken rinner över",
-      category: "WATER",
-      date: "February 5th, 2026",
-      priority: "High",
-      status: "Open",
-    },
-    {
-      id: 2,
-      title: "löfdsjdhfksdhfkjdh",
-      category: "WATER",
-      date: "February 3rd, 2026",
-      priority: "Medium",
-      status: "Open",
-    },
-  ];
+  const { issues } = useContext(IssuesContext);
+  
 
   return (
     <div className="min-h-screen bg-white pb-24">
@@ -31,9 +17,9 @@ const IssuesPage = () => {
         </p>
 
         {/* Action Button */}
-        <button className="w-full bg-blue-950 text-white p-3 rounded-lg flex items-center justify-center gap-2 font-medium hver:bg-blue-900 transition mb-6">
+        <Link to="/report-issues" className="w-full bg-blue-950 text-white p-3 rounded-lg flex items-center justify-center gap-2 font-medium hver:bg-blue-900 transition mb-6">
           <Plus size={20} /> Report Issue
-        </button>
+        </Link>
       </div>
 
       {/* Search Filter */}
