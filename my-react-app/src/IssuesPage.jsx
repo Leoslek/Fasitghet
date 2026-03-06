@@ -28,7 +28,7 @@ const IssuesPage = () => {
           <Search size={20} className="text-gray-400 mr-2" />
           <input
             type="text"
-            placeholder="Search issues..."
+            placeholder="Sök på problem..."
             className="bg-transparent outline-none w-full"
           />
         </div>

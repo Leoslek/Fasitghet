@@ -170,7 +170,7 @@ const Dashboard = () => {
               <p className="text-gray-400 mb-4">Inga Kommande Bokningar.</p>
             )}
             <Link to="/booking" className="inline-block border-2 border-gray-800 text-gray-800 px-6 py-2 rounded-lg font-medium text-center">
-              Boka Tvätt Tid
+              Boka Tvättid
             </Link>
           </div>
         </section>
