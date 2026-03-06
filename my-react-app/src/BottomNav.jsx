@@ -4,7 +4,7 @@ import { NavLink } from 'react-router-dom';
 const BottomNav = () => {
 
     const getLinkClass = ({ isActive }) =>
-        `flex flex-col items-center transition-colors ${isActive ? 'text-blue' : 'text-gray-400'}`;
+        `flex flex-col items-center transition-colors ${isActive ? 'text-blue-900' : 'text-gray-400'}`;
 return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around p-4 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
         
