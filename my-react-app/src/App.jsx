@@ -6,6 +6,7 @@ import BookingPage from "./BookingPage.jsx";
 import IssuesPage from "./IssuesPage.jsx"
 import ReportIssuesPage from "./ReportIssuesPage.jsx";
 import { IssuesProvider } from "./IssuesContext.jsx";
+import Profile from "./Profile.jsx";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/booking" element={<BookingPage />} />
           <Route path="/issues" element={<IssuesPage />} />
           <Route path="/report-issues" element={<ReportIssuesPage />} />
+          <Route path="/profile" element={<Profile />} />
         </Routes>
       </BrowserRouter>
     </IssuesProvider>
