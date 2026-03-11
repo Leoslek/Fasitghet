@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Megaphone, Info, AlertTriangle } from 'lucide-react';
+import BottomNav from "./BottomNav";
 
 const AnnouncementsPage = () => {
     const navigate = useNavigate();
@@ -27,7 +28,7 @@ const AnnouncementsPage = () => {
     return (
         <div className="min-h-screen bg-gray-50 p-6 pb-24">
             <div className="flex items-center gap-4 mb-8">
-                <button onClick={() => navigate(-1)} className="p-2 bg-white rounded-full shadow-sm">
+                <button onClick={() => navigate(-1)} className="p-2 bg-white rounded-full shadow-sm hover:cursor-pointer">
                     <ArrowLeft size={20}/>
                 </button>
                 <h1 className="text-2xl font-bold text-blue-950">Meddelande</h1>
@@ -53,6 +54,7 @@ const AnnouncementsPage = () => {
                     </div>
                 ))}
             </div>
+            <BottomNav />
         </div>
     )
 }

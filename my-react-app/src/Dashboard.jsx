@@ -120,28 +120,28 @@ const Dashboard = () => {
             <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
               <Megaphone size={20} /> Meddelanden
             </h2>
-            <Link to="/announcements" className="text-gray-500 text-sm font-medium">
+          </div>
+           <div className="space-y-4">
+            {announcements.length > 0 ? (
+              announcements.slice(0, 1).map((item) => (
+                <div key={item.id} className="border-l-4 border-blue-500 pl-3 py-1">
+                  <h3 className="font-bold text-vlue-900 text-sm">{item.title}</h3>
+                  <p className="text-xs text-blue-800 mt-1 line-clamp-2">{item.content}</p>
+                </div>
+                ))
+          ) : (
+            <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
+              <h3 className="font-bold text-gray-700 text-sm">Välkommen till din portal</h3>
+              <p className="text-xs text-gray-500 mt-1">
+                Inga nya uppdateringar just nu. Vi kommer att lägga upp viktig information här.
+              </p>
+              </div>
+          )}
+          </div>
+
+          <Link to="/announcements" className="block text-center text-gray-500 text-sm mt-4 font-medium">
               Visa Alla
             </Link>
-          </div>
-          {announcements.length > 0 ? (
-            <div className="space-y-3">
-              {announcements.map((ann, i) => (
-                <div key={i} className="border-l-4 border-blue-500 pl-3 py-1">
-                  <p className="text-sm font-medium text-gray-800">
-                    {ann.title}
-                  </p>
-                  <p className="text-xs text-gray-400">
-                    {new Date(ann.created_at).toLocaleDateString()}
-                  </p>
-                </div>
-              ))}
-            </div> 
-          ) : (
-            <p className="text-gray-400 text-center py-4">
-              Inga Meddelanden Idag.
-            </p>
-          )}
         </section>
 
         <section className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
