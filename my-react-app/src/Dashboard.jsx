@@ -118,7 +118,7 @@ const Dashboard = () => {
         <section className="bg-white p-6 rounded-2xll shadow-sm border border-gray-100">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-              <Megaphone size={20} /> Nyheter
+              <Megaphone size={20} /> Meddelanden
             </h2>
             <Link to="/announcements" className="text-gray-500 text-sm font-medium">
               Visa Alla
@@ -139,7 +139,7 @@ const Dashboard = () => {
             </div>
           ) : (
             <p className="text-gray-400 text-center py-4">
-              Inga Nyheter Idag.
+              Inga Meddelanden Idag.
             </p>
           )}
         </section>
@@ -170,7 +170,7 @@ const Dashboard = () => {
               <p className="text-gray-400 mb-4">Inga Kommande Bokningar.</p>
             )}
             <Link to="/booking" className="inline-block border-2 border-gray-800 text-gray-800 px-6 py-2 rounded-lg font-medium text-center">
-              Boka Tvätt Tid
+              Boka Tvättid
             </Link>
           </div>
         </section>
