@@ -12,7 +12,7 @@ const LandingPage = () => {
           <div className="bg-blue-900 p-2 rounded-lg text-white">
             <Building2 size={25} />
           </div>
-          <span className="font-bold text-xl text-blue-950">Brf Portal</span>
+          <span className="font-bold text-xl text-blue-950">Fastighetsappen.se</span>
         </div>
 
         {/* De två knapparna */}
