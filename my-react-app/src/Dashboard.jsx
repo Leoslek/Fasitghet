@@ -75,7 +75,7 @@ const Dashboard = () => {
     }
     if (now < startTime) {
       return {
-        label: "Upcoming",
+        label: "Kommande bokning",
         color: "bg-green-50 text-green-800 border-green-100",
       };
     }
@@ -136,7 +136,7 @@ const Dashboard = () => {
                   </p>
                 </div>
               ))}
-            </div>
+            </div> 
           ) : (
             <p className="text-gray-400 text-center py-4">
               Inga Meddelanden Idag.
