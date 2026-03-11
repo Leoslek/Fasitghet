@@ -115,7 +115,7 @@ const Dashboard = () => {
       </header>
 
       <main className="px-6 space-y-6">
-        <section className="bg-white p-6 rounded-2xll shadow-sm border border-gray-100">
+        <section className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
               <Megaphone size={20} /> Meddelanden
