@@ -26,7 +26,13 @@ const LoginPage = ({ role }) => {
       console.error("Login error:", authError.message);
     } else {
       console.log("Loggar in som:", role, "Användar-ID:", data.user.id);
-      navigate("/dashboard");
+
+      if (isLandlord) {
+        navigate("/admindashboard");
+      } else {
+        navigate("/dashboard")
+      }
+      
     }
   };
 

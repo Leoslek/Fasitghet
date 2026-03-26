@@ -8,6 +8,7 @@ import ReportIssuesPage from "./ReportIssuesPage.jsx";
 import { IssuesProvider } from "./IssuesContext.jsx";
 import Profile from "./Profile.jsx";
 import AnnouncementsPage from "./AnnouncementsPage.jsx";
+import AdminDashboard from "./AdminDashboard.jsx";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route path="/report-issues" element={<ReportIssuesPage />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/announcements" element={<AnnouncementsPage />} />
+          <Route path="/admindashboard" element={<AdminDashboard />} />
         </Routes>
       </BrowserRouter>
     </IssuesProvider>
