@@ -9,6 +9,7 @@ import { IssuesProvider } from "./IssuesContext.jsx";
 import Profile from "./Profile.jsx";
 import AnnouncementsPage from "./AnnouncementsPage.jsx";
 import AdminDashboard from "./AdminDashboard.jsx";
+import ResidentsManagement from "./ResidentsManagement.jsx";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/announcements" element={<AnnouncementsPage />} />
           <Route path="/admindashboard" element={<AdminDashboard />} />
+          <Route path="/residentsmanagement" element={<ResidentsManagement />} />
         </Routes>
       </BrowserRouter>
     </IssuesProvider>
