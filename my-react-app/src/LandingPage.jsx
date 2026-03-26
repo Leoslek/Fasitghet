@@ -17,11 +17,8 @@ const LandingPage = () => {
 
         {/* De två knapparna */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link to="/login/landlord" className="bg-blue-950 text-white px-6 py-2 rounded-full font-medium hover:bg-blue-900 hover:cursor-pointer transition">
-            Admin
-          </Link>
           <Link to="/login/resident" className="bg-blue-950 text-white px-6 py-2 rounded-full font-medium hover:bg-blue-900 hover:cursor-pointer transition">
-            Boende
+            Login
           </Link>
         </div>
       </nav>
