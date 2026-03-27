@@ -3,6 +3,24 @@ import { useNavigate } from 'react-router-dom';
 import { Camera, ChevronLeft, Send, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { supabase } from './supabaseClient';
 
+// --- SMART PRIORITERINGS-MOTOR ---
+const calculatePriority = (category, description) => {
+  let prio = 1; // Standard: Låg (1)
+  const text = description.toLowerCase();
+
+  // 1. Kategori-baserad grundprioritet
+  if (category === 'störning' || category === 'lägenhet') prio = 2; // Medel
+  if (category === 'vatten' || category === 'el' || category === 'hiss') prio = 3; // Hög
+
+  // 2. Skanna efter akuta nyckelord i beskrivningen (Tvingar upp till nivå 4)
+  const urgentKeywords = ['sprutar', 'översvämning', 'brinner', 'rök', 'strömlöst', 'inlåst', 'akut', 'brand', 'läcker mycket'];
+  const isUrgent = urgentKeywords.some(word => text.includes(word));
+  
+  if (isUrgent) prio = 4; // Akut!
+
+  return prio;
+};
+
 const ReportIssuePage = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -10,7 +28,7 @@ const ReportIssuePage = () => {
   const [status, setStatus] = useState({ show: false, message: '' });
 
   // Form states
-  const [category, setCategory] = useState('water');
+  const [category, setCategory] = useState(''); // Ändrad till tom sträng så placeholder funkar
   const [description, setDescription] = useState('');
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -37,17 +55,21 @@ const ReportIssuePage = () => {
 
     setLoading(true);
     try {
+      // Räkna ut prioriteringen baserat på formuläret!
+      const priorityLevel = calculatePriority(category, description);
+
       // 1. Skapa ticket i databasen
       const { data: ticket, error: ticketError } = await supabase
-  .from('tickets')
-  .insert([{
-    creator_id: user.id,
-    category: category,
-    description: description,
-    status: 'registered' // Ändrat från 'open' till 'registered'
-  }])
-  .select()
-  .single();
+        .from('tickets')
+        .insert([{
+          creator_id: user.id,
+          category: category,
+          description: description,
+          status: 'registered',
+          priority: priorityLevel // <-- Här sparas vår smarta prioritering!
+        }])
+        .select()
+        .single();
 
       if (ticketError) throw ticketError;
 
@@ -55,7 +77,7 @@ const ReportIssuePage = () => {
       if (image) {
         const fileExt = image.name.split('.').pop();
         const fileName = `${Date.now()}.${fileExt}`;
-        const filePath = `${user.id}/${fileName}`; // Viktigt: UserID först för policyn!
+        const filePath = `${user.id}/${fileName}`; 
 
         const { error: uploadError } = await supabase.storage
           .from('ticket-attachments')
@@ -68,7 +90,7 @@ const ReportIssuePage = () => {
           .from('ticket_attachments')
           .insert([{
             ticket_id: ticket.id,
-            file_url: filePath // Vi sparar sökvägen här
+            file_url: filePath
           }]);
 
         if (attachmentError) throw attachmentError;
@@ -92,6 +114,7 @@ const ReportIssuePage = () => {
         </div>
       )}
 
+      {/* Rättad header med din korrekta flex-layout */}
       <header className="p-6 bg-white border-b border-gray-100 flex items-center gap-4">
         <button onClick={() => navigate(-1)} className="text-gray-600"><ChevronLeft size={24} /></button>
         <h1 className="text-xl font-bold text-blue-950">Ny anmälan</h1>
@@ -107,9 +130,10 @@ const ReportIssuePage = () => {
               <select 
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
+                required
                 className="w-full bg-gray-50 border border-gray-100 rounded-2xl py-3.5 px-4 outline-none focus:ring-2 focus:ring-blue-500 font-bold text-gray-700"
               >
-                <option value="">Välj kategori...</option>
+                <option value="" disabled>Välj kategori...</option>
                 <option value="el">El</option>
                 <option value="vatten">Vatten</option>
                 <option value="hiss">Hiss</option>
