@@ -23,12 +23,21 @@ const ResidentsManagement = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingResident, setEditingResident] = useState(null);
+  const [apartments, setApartments] = useState([]);
   const [formData, setFormData] = useState({
     full_name: "",
     email: "",
     phone: "",
+    apartment_id: "",
     role: "Boende",
   });
+
+  const fetchApartments = async () => {
+    const { data, error } = await supabase
+    .from('apartments')
+    .select('id, apt_number, building_address');
+    if (!error) setApartments(data);
+  }
 
   const fetchResidents = async () => {
     setLoading(true);
@@ -61,6 +70,7 @@ const ResidentsManagement = () => {
 
   useEffect(() => {
     fetchResidents();
+    fetchApartments();
   }, []);
 
   const openModal = (resident = null) => {
@@ -70,11 +80,12 @@ const ResidentsManagement = () => {
         full_name: resident.full_name || "",
         email: resident.email || "",
         phone: resident.phone || "",
+        apartment_id: resident.apartment_id || "",
         role: "Boende",
       });
     } else {
       setEditingResident(null);
-      setFormData({ full_name: "", email: "", role: "Boende" });
+      setFormData({ full_name: "", email: "", apartment_id: "", role: "Boende" });
     }
     setIsModalOpen(true);
   };
@@ -91,6 +102,7 @@ const ResidentsManagement = () => {
             full_name: formData.full_name,
             email: formData.email,
             phone: formData.phone,
+            apartment_id: formData.apartment_id || null,
           })
           .eq("id", editingResident.id);
 
@@ -269,7 +281,7 @@ const ResidentsManagement = () => {
       )}
 
       {isModalOpen && (
-            <div className="fixed insert-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
                 <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl">
                     <div className="p-6 border-b flex justify-between items-center">
                         <h2 className="text-xl font-bold text-gray-800">
@@ -279,7 +291,7 @@ const ResidentsManagement = () => {
                             <X size={24} />
                         </button>
                     </div>
-                    <form onsubmit={handleSave} className="p-6 space-y-4">
+                    <form onSubmit={handleSave} className="p-6 space-y-4">
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1"> Fullständigt namn</label>
                             <input 
@@ -306,6 +318,22 @@ const ResidentsManagement = () => {
                             value={formData.phone}
                             onChange={(e) => setFormData({...formData, phone: e.target.value})}
                             />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1"> Koppla bostad</label>
+                            <select 
+                            className="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                            value={formData.apartment_id}
+                            onChange={(e) => setFormData({...formData, apartment_id: e.target.value})}
+                            >
+                            <option value="">Välj lägenhet</option>
+                            {apartments.map(apt => (
+                                <option key={apt.id} value={apt.id}>
+                                    Lgh {apt.apt_number} - {apt.building_address}
+                                </option>
+                            
+                            ))}
+                            </select>
                         </div>
                         <div className="flex space-x-3 pt-4">
                             <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-2.5 bg-gray-100 rounded-lg font-bold">Avbryt</button>
