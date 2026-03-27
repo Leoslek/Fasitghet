@@ -48,14 +48,14 @@ const AdminDashboard = () => {
           Admin
         </div>
         <nav className="flex-1 p-4 space-y-2">
-          <a href="#" className="flex items-center p-3 bg-blue-600 rounded-lg">
+          <Link to="/admindashboard" className="flex items-center p-3 hover:bg-slate-800 rounded-lg text-gray-400">
             <Home className="mr-3 w-5 h-5" />
             Dashboard
-          </a>
-          <a href="#" className="flex items-center p-3 hover:bg-slate-800 rounded-lg text-gray-400">
+          </Link>
+          <Link to="/residentsmanagement" className="flex items-center p-3 hover:bg-slate-800 rounded-lg text-gray-400">
             <Users className="mr-3 w-5 h-5" />
             Boende
-          </a>
+          </Link>
           {/* Länkad till felanmälningslistan vi byggde */}
           <Link to="/issues" className="flex items-center p-3 hover:bg-slate-800 rounded-lg text-gray-400">
             <AlertTriangle className="mr-3 w-5 h-5" />
