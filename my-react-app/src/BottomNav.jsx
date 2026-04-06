@@ -22,7 +22,7 @@ const BottomNav = () => {
         getRole();
     }, []);
 
-    const isAdmin = ["landlord", "admin", "Fastighetsskötare", "Styrelse"].includes(userRole);
+    const isAdmin = ["landlord", "admin", "janitor", "board"].includes(userRole);
 
     const getLinkClass = ({ isActive }) =>
         `flex flex-col items-center transition-colors ${isActive ? 'text-blue-900' : 'text-gray-400'}`;
