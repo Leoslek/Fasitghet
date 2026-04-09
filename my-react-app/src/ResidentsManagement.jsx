@@ -12,8 +12,10 @@ import {
   Edit3,
   Trash2,
   X,
+  ArrowLeft,
 } from "lucide-react";
-import BottomNav from "./BottomNav";
+import AdminBottomNav from "./AdminBottomNav";
+import { Link } from "react-router-dom";
 
 const ResidentsManagement = () => {
   const [residents, setResidents] = useState([]);
@@ -176,12 +178,20 @@ const ResidentsManagement = () => {
   return (
     <div className="p-8 bg-gray-50 min-h-screen pb-24">
       <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">Hantera Boende</h1>
+        <div className="flex items-center">
+          <Link
+          to="/admindashboard"
+          className="mr-4 p-2 hover:bg-gray-100 rounded-full transistion hover:cursor-pointer"
+          >
+            <ArrowLeft size={20} />
+          </Link>
+          <h1 className="text-xl font-black uppercase italic ">
+            Hantera Boende
+          </h1>
         </div>
         <button
           onClick={() => openModal()}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-700 transition shadow-sm"
+          className="bg-blue-600 text-white px-4 py-3 rounded-lg flex items-center text-sm font-bold uppercase tracking-widest hover:bg-slate-800 transition shadow-lg hover:cursor-pointer"
         >
           <UserPlus size={18} className="mr-2" /> Ny boende
         </button>
@@ -215,10 +225,10 @@ const ResidentsManagement = () => {
           <table className="w-full text-left">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="px-6 py-4 text-sm font-semibold text-gray-600">Namn</th>
-                <th className="px-6 py-4 text-sm font-semibold text-gray-600">Bostad</th>
-                <th className="px-6 py-4 text-sm font-semibold text-gray-600">Kontakt</th>
-                <th className="px-6 py-4 text-sm font-semibold text-gray-600">Åtgärd</th>
+                <th className="px-6 py-4 text-sm font-semibold uppercase italic text-gray-600">Namn</th>
+                <th className="px-6 py-4 text-sm font-semibold uppercase italic text-gray-600">Bostad</th>
+                <th className="px-6 py-4 text-sm font-semibold uppercase italic text-gray-600">Kontakt</th>
+                <th className="px-6 py-4 text-sm font-semibold uppercase italic text-gray-600">Åtgärd</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -226,7 +236,7 @@ const ResidentsManagement = () => {
                 filteredResidents.map((r) => (
                   <tr key={r.id} className="hover:bg-blue-50/30 transition">
                     <td className="px-6 py-4">
-                      <div className="font-medium text-gray-900">
+                      <div className="font-bold text-gray-900 uppercase italic">
                         {r.full_name || "Inget namn"}
                       </div>
                       <div className="text-xs text-gray-400 font-mono">
@@ -374,7 +384,7 @@ const ResidentsManagement = () => {
         </div>
       )}
       
-      <BottomNav />
+      <AdminBottomNav />
     </div>
   );
 };

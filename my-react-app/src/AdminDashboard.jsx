@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Users, Home, AlertTriangle, Key, Search, Plus, ArrowLeft, X, UserPlus } from "lucide-react";
 import { supabase } from "./supabaseClient"; // Importera supabase
 import { Link, useNavigate } from "react-router-dom";
+import AdminBottomNav from "./AdminBottomNav";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -43,55 +44,14 @@ const AdminDashboard = () => {
   );
 
   return (
-    <div className="flex h-screen bg-gray-100 font-sans text-slate-900">
-      {/* --- DIN ORIGINAL-SIDEBAR --- */}
-      <div className="w-64 bg-slate-900 text-white flex flex-col">
-        <div className="p-6 text-2xl font-bold border-b border-slate-800 italic uppercase">
-          Admin
+    <div className="p-8 bg-gray-50 min-h-screen pb-24">
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h1 className="text-xl font-black uppercase italic">Översikt Boende</h1>
         </div>
-        <nav className="flex-1 p-4 space-y-2">
-          <Link to="/admindashboard" className="flex items-center p-3 hover:bg-slate-800 rounded-lg text-gray-400">
-            <Home className="mr-3 w-5 h-5" />
-            Dashboard
-          </Link>
-          <Link to="/residentsmanagement" className="flex items-center p-3 hover:bg-slate-800 rounded-lg text-gray-400">
-            <Users className="mr-3 w-5 h-5" />
-            Boende
-          </Link>
-          {/* Länkad till felanmälningslistan vi byggde */}
-          <Link to="/issues" className="flex items-center p-3 hover:bg-slate-800 rounded-lg text-gray-400">
-            <AlertTriangle className="mr-3 w-5 h-5" />
-            Felanmälningar
-          </Link>
-          <Link to="/propertymanagement" className="flex items-center p-3 hover:bg-slate-800 rounded-lg text-gray-400">
-            <Key className="mr-3 w-5 h-5" />
-            Fastigheter
-          </Link>
-        </nav>
       </div>
-
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* --- DIN ORIGINAL-HEADER --- */}
-        <header className="h-16 bg-white border-b flex items-center justify-between px-8">
-          <div className="relative w-96">
-            <span className="absolute inset-y-0 pl-3 flex items-center text-gray-400">
-              <Search size={18} />
-            </span>
-            <input
-              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-gray-50 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:text-sm"
-              placeholder="Sök boende eller adress... "
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-        </header>
-
-        {/* --- DIN MAIN CONTENT --- */}
-        <main className="flex-1 overflow-y-auto p-8">
-          <h1 className="text-2xl font-semibold text-gray-800 mb-6 uppercase tracking-tight italic">
-            Översikt Boende
-          </h1>
-
+      
+        <main className="flex-1 overflow-y-auto p-8 ">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <StatCard
               title="Totala boende"
@@ -119,10 +79,25 @@ const AdminDashboard = () => {
             />
           </div>
 
+          <div className="mb-6 relative">
+                    <Search
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                      size={20}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Sök på namn, e-post eller lägenhetsnummer..."
+                      className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-blue-500 outline-none bg-white shadow-sm"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+            </div>
+
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="p-6 border-b border-gray-100 font-semibold text-gray-700 uppercase text-xs tracking-widest">
               Senaste boende
             </div>
+
             <table className="w-full text-left">
               <thead>
                 <tr className="text-gray-400 text-sm uppercase tracking-wider bg-gray-50/50">
@@ -160,12 +135,11 @@ const AdminDashboard = () => {
             </table>
           </div>
         </main>
-      </div>
+      <AdminBottomNav />
     </div>
   );
 };
 
-// --- DIN ORIGINAL-STATCARD ---
 const StatCard = ({ title, value, icon, color }) => (
   <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 flex items-center space-x-4">
     <div className={`p-3 rounded-lg ${color}`}>{icon}</div>

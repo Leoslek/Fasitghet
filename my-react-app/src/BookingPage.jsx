@@ -178,7 +178,7 @@ const BookingPage = () => {
 
       <header className="p-6 bg-white border-b border-gray-100 flex items-center gap-4">
         <Link to="/dashboard" className="text-gray-600"><ChevronLeft size={24} /></Link>
-        <h1 className="text-xl font-bold text-blue-950">Boka tvättstuga</h1>
+        <h1 className="text-xl font-bold text-blue-950 tracking-tight italic uppercase">Boka tvättstuga</h1>
       </header>
 
       <main className="p-4 space-y-6">

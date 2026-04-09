@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Home, Plus, Edit, Trash2, MapPin, Layout, Activity, X, ArrowLeft } from "lucide-react";
 import {supabase } from "./supabaseClient";
 import {Link, useNavigate } from "react-router-dom";
+import AdminBottomNav from "./AdminBottomNav";
 
 const PropertyManagement = () => {
     const navigate = useNavigate();
@@ -48,10 +49,8 @@ const PropertyManagement = () => {
     };
 
     return(
-        <div className="flex h-screen bg-gray-50 font-sans text-slate-900">
-            <div className="flex-1 flex flex-col overflow-hidden">
-
-                <header className="h-16 bg-white border-b flex items-center justify-between px-8">
+        <div className="p-8 bg-gray-50 min-h-screen pb-24">
+            <div className="flex justify-between items-center mb-8">
                     <div className="flex items-center">
                         <Link
                         to ="/admindashboard" 
@@ -59,15 +58,15 @@ const PropertyManagement = () => {
                         >
                             <ArrowLeft size={20} />
                         </Link>
-                        <h1 className="text-xl font-black uppercase italic tracking-tighter">Fastighetshantering</h1>
+                        <h1 className="text-xl font-black uppercase italic">Fastighetshantering</h1>
                     </div>
                     <button
                         onClick={() => setIsModalOpen(true)}
-                        className="bg-slate-900 text-white px-4 py-3 rounded-lg flex items-center text-sm font-bold uppercase tracking-widest hover:bg-slate-800 transition shadow-lg hover:cursor-pointer"
+                        className="bg-blue-600 text-white px-4 py-3 rounded-lg flex items-center text-sm font-bold uppercase tracking-widest hover:bg-slate-800 transition shadow-lg hover:cursor-pointer"
                     >
                         <Plus size={18} className="mr-2" /> Ny Enhet
                     </button>
-                </header>
+            </div>   
 
                 <main className="flex-1 overflow-y-auto p-8">
 
@@ -112,7 +111,7 @@ const PropertyManagement = () => {
                         </table>
                     </div>
                 </main>
-            </div>
+            
 
             {isModalOpen && (
                 <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -158,6 +157,7 @@ const PropertyManagement = () => {
                     </div>
                 </div>
             )}
+            <AdminBottomNav />
         </div>
     );
 };

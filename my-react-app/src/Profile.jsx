@@ -98,7 +98,7 @@ const Profile = () => {
 
             <header className="p-6 bg-white border-b border-gray-100 flex items-center gap-4">
                 <Link to="/dashboard" className="text-gray-600 hover:text-blue-900 transition-colors"><ChevronLeft size={24} /></Link>
-                <h1 className="text-xl font-bold text-blue-950">Mina Sidor</h1>
+                <h1 className="text-xl font-bold text-blue-950 tracking-tight italic uppercase">Mina Sidor</h1>
             </header>
 
             <main className="p-6 space-y-6">
