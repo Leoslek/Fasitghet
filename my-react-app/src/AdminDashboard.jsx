@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { Users, Home, AlertTriangle, Key, Search, Plus } from "lucide-react";
+import { Users, Home, AlertTriangle, Key, Search, Plus, ArrowLeft, X, UserPlus } from "lucide-react";
 import { supabase } from "./supabaseClient"; // Importera supabase
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
   const [residents, setResidents] = useState([]); // Stat för riktiga boende
-  const [activeTicketsCount, setActiveTicketsCount] = useState(0); // Stat för ärenden
+  const [apartments, setApartments] = useState([]); // För dropdown
+  const [activeTicketsCount, setActiveTicketsCount] = useState(0); // Status för ärenden
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -82,9 +84,6 @@ const AdminDashboard = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <button className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition font-medium">
-            <Plus size={18} className="mr-2" /> Ny boende
-          </button>
         </header>
 
         {/* --- DIN MAIN CONTENT --- */}
