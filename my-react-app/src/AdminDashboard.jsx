@@ -63,10 +63,10 @@ const AdminDashboard = () => {
             <AlertTriangle className="mr-3 w-5 h-5" />
             Felanmälningar
           </Link>
-          <a href="#" className="flex items-center p-3 hover:bg-slate-800 rounded-lg text-gray-400">
+          <Link to="/propertymanagement" className="flex items-center p-3 hover:bg-slate-800 rounded-lg text-gray-400">
             <Key className="mr-3 w-5 h-5" />
             Fastigheter
-          </a>
+          </Link>
         </nav>
       </div>
 
