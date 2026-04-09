@@ -19,6 +19,7 @@ const ResidentsManagement = () => {
   const [residents, setResidents] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -34,18 +35,17 @@ const ResidentsManagement = () => {
 
   const fetchApartments = async () => {
     const { data, error } = await supabase
-    .from('apartments')
-    .select('id, apt_number, building_address');
+      .from('apartments')
+      .select('id, apt_number, building_address');
     if (!error) setApartments(data);
-  }
+  };
 
   const fetchResidents = async () => {
     setLoading(true);
     try {
       const { data, error: supabaseError } = await supabase
         .from("users")
-        .select(
-          `
+        .select(`
             id,
             full_name,
             email,
@@ -55,8 +55,7 @@ const ResidentsManagement = () => {
                 apt_number,
                 building_address
             )
-            `,
-        )
+          `)
         .eq("role", "Boende");
 
       if (supabaseError) throw supabaseError;
@@ -85,17 +84,18 @@ const ResidentsManagement = () => {
       });
     } else {
       setEditingResident(null);
-      setFormData({ full_name: "", email: "", apartment_id: "", role: "Boende" });
+      setFormData({ full_name: "", email: "", phone: "", apartment_id: "", role: "Boende" });
     }
     setIsModalOpen(true);
   };
 
-  // Hantera spara (både Insert och Update)
   const handleSave = async (e) => {
     e.preventDefault();
+    setIsSaving(true);
+    
     try {
       if (editingResident) {
-        // Uppdatera
+        // Uppdatera befintlig
         const { error: updateError } = await supabase
           .from("users")
           .update({
@@ -107,25 +107,48 @@ const ResidentsManagement = () => {
           .eq("id", editingResident.id);
 
         if (updateError) throw updateError;
+        alert("Boende uppdaterad!");
+
       } else {
-        // Insert
+        // Skapa ny (Auth + Users)
+        const defaultPassword = "Valkommen123!";
+
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email: formData.email,
+          password: defaultPassword,
+        });
+
+        if (authError) throw authError;
+        if (!authData.user) throw new Error("Kunde inte skapa användaren. Mailen kanske redan finns?");
+
         const { error: insertError } = await supabase
           .from("users")
-          .insert([formData]);
+          .upsert([
+            {
+              id: authData.user.id,
+              full_name: formData.full_name,
+              email: formData.email,
+              phone: formData.phone,
+              apartment_id: formData.apartment_id || null,
+              role: "Boende"
+            }
+          ]);
 
         if (insertError) throw insertError;
+        alert(`Ny boende skapad!\nLösenord: ${defaultPassword}`);
       }
 
       setIsModalOpen(false);
-      fetchResidents(); // Ladda om listan
+      fetchResidents();
     } catch (err) {
       alert("Ett fel uppstod: " + err.message);
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  // Hantera borttagning
   const handleDelete = async (id) => {
-    if (window.confirm("Är du säker på att du vill bort denna boende?")) {
+    if (window.confirm("Är du säker på att du vill ta bort denna boende?")) {
       try {
         const { error: deleteError } = await supabase
           .from("users")
@@ -151,7 +174,7 @@ const ResidentsManagement = () => {
   });
 
   return (
-    <div className="p-8 bg-gray-50 min-h-screen">
+    <div className="p-8 bg-gray-50 min-h-screen pb-24">
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Hantera Boende</h1>
@@ -160,7 +183,7 @@ const ResidentsManagement = () => {
           onClick={() => openModal()}
           className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center hover:bg-blue-700 transition shadow-sm"
         >
-          <UserPlus size={18} className="mr-2" /> Registrera ny boende
+          <UserPlus size={18} className="mr-2" /> Ny boende
         </button>
       </div>
 
@@ -171,7 +194,7 @@ const ResidentsManagement = () => {
         />
         <input
           type="text"
-          placeholder="Sök på namn eller lägenhetsnummer..."
+          placeholder="Sök på namn, e-post eller lägenhetsnummer..."
           className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-blue-500 outline-none bg-white shadow-sm"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
@@ -188,22 +211,14 @@ const ResidentsManagement = () => {
           {error}
         </div>
       ) : (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hiddem">
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
           <table className="w-full text-left">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
-                <th className="px-6 py-4 text-sm font-semibold text-gray-600">
-                  Namn
-                </th>
-                <th className="px-6 py-4 text-sm font-semibold text-gray-600">
-                  Bostad
-                </th>
-                <th className="px-6 py-4 text-sm font-semibold text-gray-600">
-                  Kontakt
-                </th>
-                <th className="px-6 py-4 text-sm font-semibold text-gray-600">
-                  Åtgärd
-                </th>
+                <th className="px-6 py-4 text-sm font-semibold text-gray-600">Namn</th>
+                <th className="px-6 py-4 text-sm font-semibold text-gray-600">Bostad</th>
+                <th className="px-6 py-4 text-sm font-semibold text-gray-600">Kontakt</th>
+                <th className="px-6 py-4 text-sm font-semibold text-gray-600">Åtgärd</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -221,11 +236,11 @@ const ResidentsManagement = () => {
                     <td className="px-6 py-4">
                       {r.apartments ? (
                         <>
-                          <div className="text-sm font-bold text-gray-800 flex items-center">
+                          <div className="text-sm font-medium text-gray-800 flex items-center">
                             <Home size={14} className="mr-1 text-blue-500" />{" "}
                             Lgh {r.apartments.apt_number}
                           </div>
-                          <div className="text-xs text-gray-500 flex items-center mt-1 italic">
+                          <div className="text-xs text-gray-500 flex items-center mt-1">
                             <MapPin size={12} className="mr-1" />{" "}
                             {r.apartments.building_address}
                           </div>
@@ -257,7 +272,8 @@ const ResidentsManagement = () => {
                         </button>
                         <button
                           onClick={() => handleDelete(r.id)}
-                          className="flex items-center bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-700 px-3 py-1.5 rounded-md transition duration-200 text-sm font-medium"
+                          className="flex items-center bg-gray-100 hover:bg-red-100 text-gray-700 hover:text-red-700 px-3 py-1.5 rounded-md transition duration-200"
+                          title="Ta bort boende"
                         >
                           <Trash2 size={16} />
                         </button>
@@ -267,10 +283,7 @@ const ResidentsManagement = () => {
                 ))
               ) : (
                 <tr>
-                  <td
-                    colSpan="4"
-                    className="px-6 py-10 text-center text-gray-400 italic"
-                  >
+                  <td colSpan="4" className="px-6 py-10 text-center text-gray-400 italic">
                     Inga boende hittades
                   </td>
                 </tr>
@@ -281,69 +294,86 @@ const ResidentsManagement = () => {
       )}
 
       {isModalOpen && (
-            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-                <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl">
-                    <div className="p-6 border-b flex justify-between items-center">
-                        <h2 className="text-xl font-bold text-gray-800">
-                            {editingResident ? "Redigera boende" : "Ny registrering"}
-                        </h2>
-                        <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600">
-                            <X size={24} />
-                        </button>
-                    </div>
-                    <form onSubmit={handleSave} className="p-6 space-y-4">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1"> Fullständigt namn</label>
-                            <input 
-                            required
-                            className="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
-                            value={formData.full_name}
-                            onChange={(e) => setFormData({...formData, full_name: e.target.value})}
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1"> E-post</label>
-                            <input 
-                            required
-                            className="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
-                            value={formData.email}
-                            onChange={(e) => setFormData({...formData, email: e.target.value})}
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1"> Telefon</label>
-                            <input 
-                            required
-                            className="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
-                            value={formData.phone}
-                            onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1"> Koppla bostad</label>
-                            <select 
-                            className="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                            value={formData.apartment_id}
-                            onChange={(e) => setFormData({...formData, apartment_id: e.target.value})}
-                            >
-                            <option value="">Välj lägenhet</option>
-                            {apartments.map(apt => (
-                                <option key={apt.id} value={apt.id}>
-                                    Lgh {apt.apt_number} - {apt.building_address}
-                                </option>
-                            
-                            ))}
-                            </select>
-                        </div>
-                        <div className="flex space-x-3 pt-4">
-                            <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-2.5 bg-gray-100 rounded-lg font-bold">Avbryt</button>
-                            <button type="submit" className="flex-1 py-2.5 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition">Spara</button>
-                        </div>
-                    </form>
-                </div>
-
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl">
+            <div className="p-6 border-b flex justify-between items-center">
+              <h2 className="text-xl font-bold text-gray-800">
+                {editingResident ? "Redigera boende" : "Ny registrering"}
+              </h2>
+              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600">
+                <X size={24} />
+              </button>
             </div>
-        )}
+            
+            <form onSubmit={handleSave} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Fullständigt namn</label>
+                <input 
+                  required
+                  className="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+                  value={formData.full_name}
+                  onChange={(e) => setFormData({...formData, full_name: e.target.value})}
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">E-post (Inloggning)</label>
+                <input 
+                  required
+                  type="email"
+                  disabled={editingResident}
+                  className={`w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 ${editingResident ? 'bg-gray-100 text-gray-500' : ''}`}
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Telefon</label>
+                <input 
+                  required
+                  type="tel"
+                  className="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Koppla bostad</label>
+                <select 
+                  className="w-full p-2.5 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                  value={formData.apartment_id}
+                  onChange={(e) => setFormData({...formData, apartment_id: e.target.value})}
+                >
+                  <option value="">Välj lägenhet...</option>
+                  {apartments.map(apt => (
+                    <option key={apt.id} value={apt.id}>
+                      Lgh {apt.apt_number} - {apt.building_address}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {!editingResident && (
+                <div className="p-3 bg-blue-50 rounded-lg border border-blue-100 mt-2">
+                  <p className="text-sm text-blue-800">
+                    Användaren får lösenordet <strong>Valkommen123!</strong> och kan logga in direkt.
+                  </p>
+                </div>
+              )}
+
+              <div className="flex space-x-3 pt-4">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-2.5 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition">Avbryt</button>
+                <button type="submit" disabled={isSaving} className="flex-1 py-2.5 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50">
+                  {isSaving ? "Sparar..." : "Spara"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      
       <BottomNav />
     </div>
   );
