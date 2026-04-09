@@ -10,6 +10,7 @@ import AnnouncementsPage from "./AnnouncementsPage.jsx";
 import AdminDashboard from "./AdminDashboard.jsx";
 import IssueDetails from "./IssueDetails.jsx";
 import ResidentsManagement from "./ResidentsManagement.jsx";
+import PropertyManagement from "./PropertyManagement.jsx";
 
 function App() {
   return (
@@ -36,6 +37,7 @@ function App() {
         {/* Admin-sidor */}
         <Route path="/admindashboard" element={<AdminDashboard />} />
         <Route path="/residentsmanagement" element={<ResidentsManagement />} />
+        <Route path="/propertymanagement" element={<PropertyManagement />} />
 
       </Routes>
     </BrowserRouter>
