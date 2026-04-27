@@ -21,8 +21,8 @@ function App() {
   const [loading, setloading] = useState(true);
 
   useEffect(() => {
-    async function getUserRole() {
-      const { data: { user } } = await supabase.auth.getUser();
+    // Funktion för att hämta rollen
+    async function getUserRole(user) {
       if (user) {
         const { data } = await supabase
           .from("users")
@@ -30,17 +30,37 @@ function App() {
           .eq("id", user.id)
           .single();
         setRole(data?.role);
+      } else {
+        setRole(null);
       }
       setloading(false);
     }
-    getUserRole();
+
+    // 1. Kolla vem som är inloggad när appen laddas
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      getUserRole(user);
+    });
+
+    // 2. MAGIN: Lyssna live på inloggningar! Uppdaterar rollen direkt utan omladdning
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      getUserRole(session?.user);
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
   }, []);
 
-  if (loading) return <div className="h-screen flex items-center justify-center">Laddar...</div>
+  if (loading) return <div className="h-screen flex items-center justify-center font-bold text-gray-400">Laddar...</div>;
 
-  const isAdmin = role !== null && ["Hyresvärd", "landlord", "admin", "Styrelse"].includes(role);
-  console.log("DEBUG -> Nuvarande roll i databasen:", role);
-console.log("DEBUG -> Är admin enligt logiken:", isAdmin);
+  // Täcker in alla möjliga variationer av admin-roller
+  const isAdmin = role !== null && [
+    "Hyresvärd", "landlord", 
+    "admin", "Admin", 
+    "Styrelse", "board",
+    "janitor", "Fastighetsskötare"
+  ].includes(role);
+
   return (
     <BrowserRouter>
       <Routes>
@@ -50,24 +70,20 @@ console.log("DEBUG -> Är admin enligt logiken:", isAdmin);
         <Route path="/login/resident" element={<LoginPage role="resident" />} />
         <Route path="/login/landlord" element={<LoginPage role="landlord" />} />
         
-        {/* Boende-sidor */}
+        {/* Sidor som ligger i appen (Layout hanterar bottenmenyn) */}
         <Route element={<Layout isAdmin={isAdmin} />}>
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/booking" element={<BookingPage />} />
-        <Route path="/issues" element={<IssuesPage isAdmin={isAdmin} />} />
-        <Route path="/report-issues" element={<ReportIssuesPage />} />
-        
-        {/* Detaljsidan för ett ärende */}
-        <Route path="/issue/:id" element={<IssueDetails />} />
-
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/announcements" element={<AnnouncementsPage />} />
-        
-        {/* Admin-sidor */}
-        <Route path="/admindashboard" element={<AdminDashboard />} />
-        <Route path="/residentsmanagement" element={<ResidentsManagement />} />
-        <Route path="/propertymanagement" element={<PropertyManagement />} />
-        <Route path="/adminannouncements" element={<AdminAnnouncements />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/booking" element={<BookingPage />} />
+          <Route path="/issues" element={<IssuesPage isAdmin={isAdmin} />} />
+          <Route path="/report-issues" element={<ReportIssuesPage />} />
+          <Route path="/issue/:id" element={<IssueDetails />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/announcements" element={<AnnouncementsPage />} />
+          
+          <Route path="/admindashboard" element={<AdminDashboard />} />
+          <Route path="/residentsmanagement" element={<ResidentsManagement />} />
+          <Route path="/propertymanagement" element={<PropertyManagement />} />
+          <Route path="/adminannouncements" element={<AdminAnnouncements />} />
         </Route>
       </Routes>
     </BrowserRouter>

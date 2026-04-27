@@ -2,12 +2,14 @@ import React, { useState, useEffect } from "react";
 import { Search, Plus, MessageSquare, Paperclip, ChevronRight, ClipboardList, ArrowLeft} from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "./supabaseClient";
+import BottomNav from "./BottomNav";
+import AdminBottomNav from "./AdminBottomNav";
 
 const IssuesPage = ({ isAdmin }) => {
   const [issues, setIssues] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all"); // NY: Status-filter!
+  const [statusFilter, setStatusFilter] = useState("all"); 
   const [userRole, setUserRole] = useState(null);
 
   const fetchIssues = async () => {
@@ -21,6 +23,7 @@ const IssuesPage = ({ isAdmin }) => {
 
       let query = supabase.from('tickets').select('*, ticket_messages(count), ticket_attachments(count)');
       
+      // Om man inte är admin, visa BARA ens egna ärenden
       if (!isAdmin) {
         query = query.eq('creator_id', user.id);
       }
@@ -40,8 +43,6 @@ const IssuesPage = ({ isAdmin }) => {
 
   useEffect(() => { fetchIssues(); }, [isAdmin]);
 
-
-
   const getStatusColor = (status) => {
     switch(status) {
       case 'registered': return 'bg-blue-100 text-blue-700';
@@ -51,7 +52,6 @@ const IssuesPage = ({ isAdmin }) => {
     }
   };
 
-  // NY: Filtreringslogik som tar hänsyn till BÅDE sökord och de nya knapparna
   const filteredIssues = issues.filter(issue => {
     const matchesSearch = issue.description?.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           issue.category?.toLowerCase().includes(searchQuery.toLowerCase());
@@ -64,24 +64,33 @@ const IssuesPage = ({ isAdmin }) => {
       <div className="flex justify-between items-center mb-8">
         <div className="flex items-center">
           <Link
-          to={isAdmin ? "/admindashboard" : "/dashboard"}
-          className="mr-4 p-2 hover:bg-gray-100 rounded-full transistion hover:cursor-pointer"
-        >
+            to={isAdmin ? "/admindashboard" : "/dashboard"}
+            className="mr-4 p-2 hover:bg-gray-100 rounded-full transition hover:cursor-pointer"
+          >
             <ArrowLeft size={20} />
-        </Link>
-        <h1 className="text-xl font-black uppercase italic ">
-            {isAdmin ? "Alla Ärenden" : "Mina Ärenden"}
-        </h1>
+          </Link>
+          <h1 className="text-xl font-black uppercase italic ">
+              {isAdmin ? "Alla Ärenden" : "Mina Ärenden"}
+          </h1>
         </div>
-        <p className="text-gray-500 mt-2 mb-6 text-sm font-medium italic">
-          {isAdmin ? "" : "Följ status på dina ärenden."}
-        </p>
+        
+        {/* Visa bara knappen "Nytt problem" för boende */}
         {!isAdmin && (
-          <Link to="/report-issues" className="w-full bg-blue-600 text-white p-4 rounded-2xl flex items-center justify-center gap-2 font-bold shadow-lg shadow-blue-100 hover:bg-blue-700 transition-all active:scale-95">
+          <Link to="/report-issues" className="w-full bg-blue-600 text-white p-4 rounded-2xl flex items-center justify-center gap-2 font-bold shadow-lg shadow-blue-100 hover:bg-blue-700 transition-all active:scale-95 mt-4">
             <Plus size={20} /> Rapportera nytt problem
           </Link>
         )}
       </div>
+
+      {isAdmin ? (
+         <p className="text-gray-500 mb-6 text-sm font-medium italic">
+          Hantera fastighetens felanmälningar.
+         </p>
+      ) : (
+         <p className="text-gray-500 mb-6 text-sm font-medium italic">
+          Följ status på dina ärenden.
+         </p>
+      )}
 
       {/* Sök & Filtersektion */}
       <div className="p-4 space-y-3">
@@ -107,7 +116,7 @@ const IssuesPage = ({ isAdmin }) => {
             <button
               key={f.id}
               onClick={() => setStatusFilter(f.id)}
-              className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border ${
+              className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap border cursor-pointer ${
                 statusFilter === f.id 
                   ? 'bg-slate-900 text-white border-slate-900 shadow-md' 
                   : 'bg-white text-gray-400 border-gray-100 hover:border-gray-300'
@@ -153,6 +162,8 @@ const IssuesPage = ({ isAdmin }) => {
         )}
       </div>
   
+     
+
     </div>
   );
 };

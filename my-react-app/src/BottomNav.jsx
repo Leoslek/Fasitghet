@@ -1,18 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Home, ClipboardList, Book, LogOut, User, LayoutDashboard } from 'lucide-react';
-import { NavLink, useNavigate } from 'react-router-dom'; // Lade till useNavigate här
+import { NavLink, useNavigate } from 'react-router-dom';
 import { supabase } from './supabaseClient';
 
-
-
-const BottomNav = (isAdmin) => {
-    const [userRole, setUserRole] = useState(null);
-    const navigate = useNavigate(); // Aktiverade navigate här
+const BottomNav = ({ isAdmin }) => { // FIX: Måsvingar här är superviktigt!
+    const navigate = useNavigate();
 
     const getLinkClass = ({ isActive }) => 
-        `flex flex-col items-center transition-colors ${isActive ? 'text-blue-900' : 'text-gray-400'}`;
+        `flex flex-col items-center flex-1 transition-colors ${isActive ? 'text-blue-900' : 'text-gray-400'}`;
 
-    // Lade till samma utloggningsfunktion som i AdminBottomNav
     const handleLogout = async () => {
         if (window.confirm("Vill du logga ut?")) {
             await supabase.auth.signOut();
@@ -23,41 +19,32 @@ const BottomNav = (isAdmin) => {
     return (
         <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around p-4 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] z-50">
             
-            {/* SMART HEM-KNAPP: Går till Admin- eller Boende-dashboard */}
             <NavLink to={isAdmin ? "/admindashboard" : "/dashboard"} className={getLinkClass}>
                 {isAdmin ? <LayoutDashboard size={24} /> : <Home size={24} />}
-                <span className="text-[10px] font-bold uppercase tracking-tighter">
-                    {isAdmin ? 'Admin' : 'Hem'}
-                </span>
+                <span className="text-[10px] font-bold uppercase tracking-tighter mt-1">{isAdmin ? 'Admin' : 'Hem'}</span>
             </NavLink>
 
             <NavLink to="/issues" className={getLinkClass}>
                 <ClipboardList size={24} />
-                <span className="text-[10px] font-bold uppercase tracking-tighter">Ärenden</span>
+                <span className="text-[10px] font-bold uppercase tracking-tighter mt-1">Ärenden</span>
             </NavLink>
 
-            {/* Boka-knappen (kanske bara för boende?) */}
             {!isAdmin && (
                 <NavLink to="/booking" className={getLinkClass}>
                     <Book size={24} />
-                    <span className="text-[10px] font-bold uppercase tracking-tighter">Boka</span>
+                    <span className="text-[10px] font-bold uppercase tracking-tighter mt-1">Boka</span>
                 </NavLink>
             )}
 
             <NavLink to="/profile" className={getLinkClass}>
                 <User size={24} />
-                <span className="text-[10px] font-bold uppercase tracking-tighter">Profil</span>
+                <span className="text-[10px] font-bold uppercase tracking-tighter mt-1">Profil</span>
             </NavLink>
 
-            
-            <button 
-                onClick={handleLogout}
-                className="flex flex-col items-center text-red-500 hover:text-red-700 transition-colors cursor-pointer"
-            >
+            <button onClick={handleLogout} className="flex flex-col items-center flex-1 text-red-500 hover:cursor-pointer">
                 <LogOut size={24} />
-                <span className="text-[10px] font-bold uppercase tracking-tighter">Logga ut</span>
+                <span className="text-[10px] font-bold uppercase tracking-tighter mt-1">Logga ut</span>
             </button>
-
         </nav>
     );
 };
