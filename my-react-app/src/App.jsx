@@ -1,4 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { supabase } from "./supabaseClient.js";
 import LoginPage from "./LoginPage.jsx";
 import LandingPage from "./LandingPage.jsx";
 import Dashboard from "./Dashboard.jsx";
@@ -11,8 +13,31 @@ import AdminDashboard from "./AdminDashboard.jsx";
 import IssueDetails from "./IssueDetails.jsx";
 import ResidentsManagement from "./ResidentsManagement.jsx";
 import PropertyManagement from "./PropertyManagement.jsx";
+import Layout from "./Layout.jsx";
 
 function App() {
+  const [role, setRole] = useState(null);
+  const [loading, setloading] = useState(true);
+
+  useEffect(() => {
+    async function getUserRole() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data } = await supabase
+          .from("users")
+          .select("role")
+          .eq("id", user.id)
+          .single();
+        setRole(data?.role);
+      }
+      setloading(false);
+    }
+    getUserRole();
+  }, []);
+
+  if (loading) return <div className="h-screen flex items-center justify-center">Laddar...</div>
+
+  const isAdmin = ["Hyresvärd"];
   return (
     <BrowserRouter>
       <Routes>
@@ -23,9 +48,10 @@ function App() {
         <Route path="/login/landlord" element={<LoginPage role="landlord" />} />
         
         {/* Boende-sidor */}
+        <Route element={<Layout isAdmin={isAdmin} />}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/booking" element={<BookingPage />} />
-        <Route path="/issues" element={<IssuesPage />} />
+        <Route path="/issues" element={<IssuesPage isAdmin={isAdmin} />} />
         <Route path="/report-issues" element={<ReportIssuesPage />} />
         
         {/* Detaljsidan för ett ärende */}
@@ -38,7 +64,7 @@ function App() {
         <Route path="/admindashboard" element={<AdminDashboard />} />
         <Route path="/residentsmanagement" element={<ResidentsManagement />} />
         <Route path="/propertymanagement" element={<PropertyManagement />} />
-
+        </Route>
       </Routes>
     </BrowserRouter>
   );

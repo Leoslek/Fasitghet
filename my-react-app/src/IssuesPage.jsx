@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Search, Plus, MessageSquare, Paperclip, ChevronRight, ClipboardList } from "lucide-react";
+import { Search, Plus, MessageSquare, Paperclip, ChevronRight, ClipboardList, ArrowLeft} from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "./supabaseClient";
-import BottomNav from "./BottomNav";
 
-const IssuesPage = () => {
+const IssuesPage = ({ isAdmin }) => {
   const [issues, setIssues] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -21,9 +20,8 @@ const IssuesPage = () => {
       setUserRole(profile?.role);
 
       let query = supabase.from('tickets').select('*, ticket_messages(count), ticket_attachments(count)');
-      const isAdminRole = ['landlord', 'admin', 'Fastighetsskötare', 'Styrelse'].includes(profile?.role);
       
-      if (!isAdminRole) {
+      if (!isAdmin) {
         query = query.eq('creator_id', user.id);
       }
 
@@ -40,9 +38,9 @@ const IssuesPage = () => {
     }
   };
 
-  useEffect(() => { fetchIssues(); }, []);
+  useEffect(() => { fetchIssues(); }, [isAdmin]);
 
-  const isAdmin = ['landlord', 'admin', 'Fastighetsskötare', 'Styrelse'].includes(userRole);
+
 
   const getStatusColor = (status) => {
     switch(status) {
@@ -62,13 +60,21 @@ const IssuesPage = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24 text-slate-900">
-      <div className="p-8 bg-white border-b border-gray-100">
-        <h1 className="text-3xl font-black text-blue-950 tracking-tight italic uppercase">
+    <div className="p-8 bg-gray-50 min-h-screen pb-24">
+      <div className="flex justify-between items-center mb-8">
+        <div className="flex items-center">
+          <Link
+          to={isAdmin ? "/admindashboard" : "/dashboard"}
+          className="mr-4 p-2 hover:bg-gray-100 rounded-full transistion hover:cursor-pointer"
+        >
+            <ArrowLeft size={20} />
+        </Link>
+        <h1 className="text-xl font-black uppercase italic ">
             {isAdmin ? "Alla Ärenden" : "Mina Ärenden"}
         </h1>
+        </div>
         <p className="text-gray-500 mt-2 mb-6 text-sm font-medium italic">
-          {isAdmin ? "Central hantering av felanmälningar." : "Följ status på dina ärenden."}
+          {isAdmin ? "" : "Följ status på dina ärenden."}
         </p>
         {!isAdmin && (
           <Link to="/report-issues" className="w-full bg-blue-600 text-white p-4 rounded-2xl flex items-center justify-center gap-2 font-bold shadow-lg shadow-blue-100 hover:bg-blue-700 transition-all active:scale-95">
@@ -146,7 +152,7 @@ const IssuesPage = () => {
           ))
         )}
       </div>
-      <BottomNav />
+  
     </div>
   );
 };

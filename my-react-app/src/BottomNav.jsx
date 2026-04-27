@@ -1,31 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Home, ClipboardList, Book, LogOut, User, LayoutDashboard } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { supabase } from './supabaseClient';
 
-const BottomNav = () => {
-    const [userRole, setUserRole] = useState(null);
+const BottomNav = ({ isAdmin }) => {
 
-    // Hämta rollen för att veta vilken dashboard som ska länkas
-    useEffect(() => {
-        const getRole = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (user) {
-                const { data } = await supabase
-                    .from("users")
-                    .select("role")
-                    .eq("id", user.id)
-                    .single();
-                setUserRole(data?.role);
-            }
-        };
-        getRole();
-    }, []);
-
-    const isAdmin = ["landlord", "admin", "janitor", "board"].includes(userRole);
-
-    const getLinkClass = ({ isActive }) =>
+    const getLinkClass = ({ isActive }) => 
         `flex flex-col items-center transition-colors ${isActive ? 'text-blue-900' : 'text-gray-400'}`;
+
 
     return (
         <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around p-4 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] z-50">
@@ -39,18 +21,21 @@ const BottomNav = () => {
             </NavLink>
 
             <NavLink to="/issues" className={getLinkClass}>
-                <ClipboardList size={24} /><span className="text-[10px] font-bold uppercase tracking-tighter">Ärenden</span>
+                <ClipboardList size={24} />
+                <span className="text-[10px] font-bold uppercase tracking-tighter">Ärenden</span>
             </NavLink>
 
             {/* Boka-knappen (kanske bara för boende?) */}
             {!isAdmin && (
                 <NavLink to="/booking" className={getLinkClass}>
-                    <Book size={24} /><span className="text-[10px] font-bold uppercase tracking-tighter">Boka</span>
+                    <Book size={24} />
+                    <span className="text-[10px] font-bold uppercase tracking-tighter">Boka</span>
                 </NavLink>
             )}
 
             <NavLink to="/profile" className={getLinkClass}>
-                <User size={24} /><span className="text-[10px] font-bold uppercase tracking-tighter">Profil</span>
+                <User size={24} />
+                <span className="text-[10px] font-bold uppercase tracking-tighter">Profil</span>
             </NavLink>
 
             {/* Logout - skickar användaren till start */}
@@ -58,7 +43,8 @@ const BottomNav = () => {
                 onClick={() => supabase.auth.signOut()}
                 className="flex flex-col items-center text-red-500 hover:text-red-700 transition-colors"
             >
-                <LogOut size={24} /><span className="text-[10px] font-bold uppercase tracking-tighter">Logga ut</span>
+                <LogOut size={24} />
+                <span className="text-[10px] font-bold uppercase tracking-tighter">Logga ut</span>
             </button>
 
         </nav>
