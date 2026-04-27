@@ -62,7 +62,7 @@ const BottomNav = () => {
                 <User size={24} /><span className="text-[10px] font-bold uppercase tracking-tighter">Profil</span>
             </NavLink>
 
-
+            
             <button 
                 onClick={handleLogout}
                 className="flex flex-col items-center text-red-500 hover:text-red-700 transition-colors cursor-pointer"

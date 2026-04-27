@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Edit, Layout, Activity, X, ArrowLeft, Percent, Loader2, Search, SlidersHorizontal, MapPin, ChevronDown, ChevronUp } from "lucide-react";
+import { Plus, Edit, Layout, Activity, X, ArrowLeft, Percent, Loader2, Search, SlidersHorizontal, MapPin, ChevronDown, ChevronUp, Megaphone } from "lucide-react";
 import { supabase } from "./supabaseClient";
 import { Link, useNavigate } from "react-router-dom";
 import AdminBottomNav from "./AdminBottomNav";
@@ -153,12 +153,23 @@ const PropertyManagement = () => {
                     </Link>
                     <h1 className="text-xl font-black uppercase italic">Fastighetshantering</h1>
                 </div>
-                <button
-                    onClick={() => { setEditingId(null); setIsModalOpen(true); }}
-                    className="bg-slate-900 text-white px-5 py-3 rounded-xl flex items-center text-xs font-black uppercase tracking-widest hover:bg-blue-600 transition shadow-lg"
-                >
-                    <Plus size={18} className="mr-2" /> Ny Enhet
-                </button>
+                
+                <div className="flex gap-3">
+                    {/* NY KNAPP: Länk till Anslagstavlan */}
+                    <Link 
+                        to="/adminannouncements" 
+                        className="bg-white text-slate-900 border border-gray-200 px-5 py-3 rounded-xl flex items-center text-xs font-black uppercase tracking-widest hover:bg-gray-50 transition shadow-sm"
+                    >
+                        <Megaphone size={16} className="mr-2 text-blue-600" /> Anslagstavla
+                    </Link>
+
+                    <button
+                        onClick={() => { setEditingId(null); setIsModalOpen(true); }}
+                        className="bg-slate-900 text-white px-5 py-3 rounded-xl flex items-center text-xs font-black uppercase tracking-widest hover:bg-blue-600 transition shadow-lg cursor-pointer"
+                    >
+                        <Plus size={18} className="mr-2" /> Ny Enhet
+                    </button>
+                </div>
             </div>
 
             {/* QUICK STATS */}

@@ -117,25 +117,33 @@ const Dashboard = () => {
         <p className="text-gray-500 font-medium">Detta händer i din byggnad idag.</p>
       </header>
 
-      <main className="px-6 space-y-6">
+<main className="px-6 space-y-6">
+        
         {/* Meddelanden */}
         <section className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
           <h2 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
             <Megaphone size={16} /> Meddelanden
           </h2>
-          <div className="space-y-4">
+          <div className="space-y-4 text-center">
             {announcements.length > 0 ? (
-              announcements.map((item, i) => (
-                <div key={i} className="border-l-4 border-blue-500 pl-3 py-1">
-                  <h3 className="font-bold text-blue-900 text-sm">{item.title}</h3>
-                  <p className="text-xs text-gray-400 mt-1 uppercase font-bold">
-                    {new Date(item.created_at).toLocaleDateString()}
-                  </p>
-                </div>
-              ))
+              <div className="space-y-3 text-left mb-4">
+                {announcements.map((item, i) => (
+                  <div key={i} className="border-l-4 border-blue-500 pl-3 py-1">
+                    <h3 className="font-bold text-blue-900 text-sm">{item.title}</h3>
+                    <p className="text-xs text-gray-400 mt-1 uppercase font-bold">
+                      {new Date(item.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                ))}
+              </div>
             ) : (
-              <p className="text-xs text-gray-400 italic">Inga nya meddelanden.</p>
+              <p className="text-xs text-gray-400 italic mb-4">Inga nya meddelanden.</p>
             )}
+            
+            {/* KNAPPEN LÄNGST NER */}
+            <Link to="/announcements" className="block w-full text-center bg-blue-50 text-blue-700 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-100 transition">
+              Se alla meddelanden
+            </Link>
           </div>
         </section>
 
@@ -158,56 +166,59 @@ const Dashboard = () => {
             ) : (
               <p className="text-gray-400 text-sm mb-4 italic">Inga kommande bokningar.</p>
             )}
-            <Link to="/booking" className="block w-full bg-blue-50 text-blue-700 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-100 transition">
+            
+            {/* KNAPPEN LÄNGST NER */}
+            <Link to="/booking" className="block w-full text-center bg-blue-50 text-blue-700 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-100 transition">
               Boka tid
             </Link>
           </div>
         </section>
 
-        {/* Felanmälningar - NU LIVE-KOPPLAD */}
+        {/* Felanmälningar */}
         <section className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-sm font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
-              <AlertCircle size={16} className="text-orange-500" /> Mina Ärenden
-            </h2>
-            <Link to="/issues" className="text-[10px] font-black text-blue-600 uppercase tracking-widest">
-              Visa alla
+          <h2 className="text-sm font-black text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+            <AlertCircle size={16} className="text-orange-500" /> Mina Ärenden
+          </h2>
+          
+          <div className="text-center">
+            <div className="space-y-3 mb-4 text-left">
+              {loadingIssues ? (
+                <div className="h-12 bg-gray-50 animate-pulse rounded-2xl" />
+              ) : recentIssues.length > 0 ? (
+                recentIssues.map((issue) => (
+                  <Link 
+                    to={`/issue/${issue.id}`} 
+                    key={issue.id} 
+                    className="flex justify-between items-center bg-gray-50 p-4 rounded-2xl border border-gray-100 active:scale-[0.98] transition-all"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-bold text-gray-800 text-xs uppercase tracking-tighter truncate italic">
+                        {issue.category}
+                      </h3>
+                      <p className="text-[10px] text-gray-400 font-bold uppercase mt-0.5 flex items-center gap-1">
+                        <Clock size={10} /> {new Date(issue.created_at).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[9px] font-black bg-white px-2 py-1 rounded-full border border-gray-200 text-gray-600 uppercase tracking-tighter">
+                        {formatStatus(issue.status)}
+                      </span>
+                      <ChevronRight size={14} className="text-gray-300" />
+                    </div>
+                  </Link>
+                ))
+              ) : (
+                <p className="text-gray-400 text-xs text-center italic">Du har inga aktiva ärenden.</p>
+              )}
+            </div>
+            
+            {/* KNAPPEN LÄNGST NER */}
+            <Link to="/issues" className="block w-full text-center bg-blue-50 text-blue-700 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-blue-100 transition">
+              Se alla ärenden
             </Link>
           </div>
-          
-          <div className="space-y-3">
-            {loadingIssues ? (
-              <div className="h-12 bg-gray-50 animate-pulse rounded-2xl" />
-            ) : recentIssues.length > 0 ? (
-              recentIssues.map((issue) => (
-                <Link 
-                  to={`/issue/${issue.id}`} 
-                  key={issue.id} 
-                  className="flex justify-between items-center bg-gray-50 p-4 rounded-2xl border border-gray-100 active:scale-[0.98] transition-all"
-                >
-                  <div className="min-w-0 flex-1">
-                    <h3 className="font-bold text-gray-800 text-xs uppercase tracking-tighter truncate italic">
-                      {issue.category}
-                    </h3>
-                    <p className="text-[10px] text-gray-400 font-bold uppercase mt-0.5 flex items-center gap-1">
-                      <Clock size={10} /> {new Date(issue.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[9px] font-black bg-white px-2 py-1 rounded-full border border-gray-200 text-gray-600 uppercase tracking-tighter">
-                      {formatStatus(issue.status)}
-                    </span>
-                    <ChevronRight size={14} className="text-gray-300" />
-                  </div>
-                </Link>
-              ))
-            ) : (
-              <div className="text-center py-4">
-                <p className="text-gray-400 text-xs italic">Du har inga aktiva ärenden.</p>
-              </div>
-            )}
-          </div>
         </section>
+        
       </main>
       <BottomNav />
     </div>
