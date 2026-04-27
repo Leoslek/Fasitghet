@@ -14,6 +14,7 @@ import IssueDetails from "./IssueDetails.jsx";
 import ResidentsManagement from "./ResidentsManagement.jsx";
 import PropertyManagement from "./PropertyManagement.jsx";
 import Layout from "./Layout.jsx";
+import AdminAnnouncements from "./AdminAnnouncements.jsx";
 
 function App() {
   const [role, setRole] = useState(null);
@@ -64,6 +65,7 @@ function App() {
         <Route path="/admindashboard" element={<AdminDashboard />} />
         <Route path="/residentsmanagement" element={<ResidentsManagement />} />
         <Route path="/propertymanagement" element={<PropertyManagement />} />
+        <Route path="/adminannouncements" element={<AdminAnnouncements />} />
         </Route>
       </Routes>
     </BrowserRouter>

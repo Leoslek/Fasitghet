@@ -3,6 +3,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { Users, AlertTriangle, Home, LogOut } from "lucide-react";
 import { supabase } from "./supabaseClient";
 
+
 const AdminBottomNav = () => {
     const navigate = useNavigate();
 
@@ -55,7 +56,7 @@ const AdminBottomNav = () => {
 
                 {/* Logga ut */}
                 <button
-                    onClick={{handleLogout}}
+                    onClick={handleLogout}
                     className="flex flex-col items-center flex-1 transition-colors text-red-500 hover:cursor-pointer"
                 >
                     <LogOut size={24} />

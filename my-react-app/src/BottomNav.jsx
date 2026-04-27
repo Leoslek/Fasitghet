@@ -1,13 +1,23 @@
 import React from 'react';
 import { Home, ClipboardList, Book, LogOut, User, LayoutDashboard } from 'lucide-react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom'; // Lade till useNavigate här
 import { supabase } from './supabaseClient';
 
-const BottomNav = ({ isAdmin }) => {
+
+const BottomNav = (isAdmin) => {
+    const [userRole, setUserRole] = useState(null);
+    const navigate = useNavigate(); // Aktiverade navigate här
 
     const getLinkClass = ({ isActive }) => 
         `flex flex-col items-center transition-colors ${isActive ? 'text-blue-900' : 'text-gray-400'}`;
 
+    // Lade till samma utloggningsfunktion som i AdminBottomNav
+    const handleLogout = async () => {
+        if (window.confirm("Vill du logga ut?")) {
+            await supabase.auth.signOut();
+            navigate("/");
+        }
+    };
 
     return (
         <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around p-4 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] z-50">
@@ -38,10 +48,10 @@ const BottomNav = ({ isAdmin }) => {
                 <span className="text-[10px] font-bold uppercase tracking-tighter">Profil</span>
             </NavLink>
 
-            {/* Logout - skickar användaren till start */}
+            
             <button 
-                onClick={() => supabase.auth.signOut()}
-                className="flex flex-col items-center text-red-500 hover:text-red-700 transition-colors"
+                onClick={handleLogout}
+                className="flex flex-col items-center text-red-500 hover:text-red-700 transition-colors cursor-pointer"
             >
                 <LogOut size={24} />
                 <span className="text-[10px] font-bold uppercase tracking-tighter">Logga ut</span>
