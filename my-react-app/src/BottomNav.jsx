@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Home, ClipboardList, Book, LogOut, User, LayoutDashboard } from 'lucide-react';
 import { NavLink, useNavigate } from 'react-router-dom'; // Lade till useNavigate här
 import { supabase } from './supabaseClient';
+
 
 
 const BottomNav = (isAdmin) => {

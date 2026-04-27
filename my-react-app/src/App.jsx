@@ -38,7 +38,9 @@ function App() {
 
   if (loading) return <div className="h-screen flex items-center justify-center">Laddar...</div>
 
-  const isAdmin = ["Hyresvärd"];
+  const isAdmin = role !== null && ["Hyresvärd", "landlord", "admin", "Styrelse"].includes(role);
+  console.log("DEBUG -> Nuvarande roll i databasen:", role);
+console.log("DEBUG -> Är admin enligt logiken:", isAdmin);
   return (
     <BrowserRouter>
       <Routes>
