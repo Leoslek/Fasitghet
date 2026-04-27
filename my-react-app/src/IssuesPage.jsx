@@ -2,8 +2,6 @@ import React, { useState, useEffect } from "react";
 import { Search, Plus, MessageSquare, Paperclip, ChevronRight, ClipboardList, ArrowLeft} from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "./supabaseClient";
-import BottomNav from "./BottomNav";
-import AdminBottomNav from "./AdminBottomNav";
 
 const IssuesPage = ({ isAdmin }) => {
   const [issues, setIssues] = useState([]);
