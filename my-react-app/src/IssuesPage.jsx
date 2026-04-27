@@ -74,8 +74,8 @@ const IssuesPage = ({ isAdmin }) => {
         
         {/* Visa bara knappen "Nytt problem" för boende */}
         {!isAdmin && (
-          <Link to="/report-issues" className="w-full bg-blue-600 text-white p-4 rounded-2xl flex items-center justify-center gap-2 font-bold shadow-lg shadow-blue-100 hover:bg-blue-700 transition-all active:scale-95 mt-4">
-            <Plus size={20} /> Rapportera nytt problem
+          <Link to="/report-issues" className="bg-blue-600 text-white px-4 py-3 rounded-lg flex items-center text-sm font-bold uppercase tracking-widest hover:bg-slate-800 transition shadow-lg hover:cursor-pointer">
+            <Plus size={20} /> Nytt problem
           </Link>
         )}
       </div>
